@@ -1,0 +1,19 @@
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+.idea/
+*.apk
+*.aab
+
+# Misc
+.DS_Store
+*.log
+
+# Brainstorm companion / local agent artifacts
+.superpowers/

@@ -1,0 +1,711 @@
+You are a Senior software Engineer, Senior UI/UX Designer, and Mobile Software Architect.
+expo go
+
+I am building the mobile application for my university project called Digital Sports Scoreboard.
+
+The hardware uses an ESP32 which communicates with the mobile application over Bluetooth Classic (HC-05 compatibility or ESP32 Bluetooth SPP).
+
+The mobile app must look like a professionally designed commercial application—not a student project.
+
+The UI should have smooth animations, modern Material 3 design, rounded cards, beautiful typography, icons, gradients where appropriate, and responsive layouts.
+
+Do not use placeholder screens.
+
+Everything should be fully implemented.
+
+PROJECT OVERVIEW
+
+The Digital Sports Scoreboard is a portable Bluetooth-controlled electronic scoreboard designed for indoor and outdoor sporting events.
+
+The scoreboard:
+
+• Displays Team A name
+• Displays Team B name
+• Displays Team A score
+• Displays Team B score
+
+The operator controls everything from the mobile application.
+
+Additional features include:
+
+• Bluetooth communication with ESP32
+• Start Game
+• End Game
+• Reset Game
+• Audio announcements (played by DFPlayer Mini on ESP32)
+• Automatic LCD brightness using an LDR
+• Rechargeable battery powered by solar or charger
+
+The mobile app only sends commands.
+
+The ESP32 performs the hardware actions.
+
+This matches the project design document, including Bluetooth control, score updates, team names, game controls, reset functionality, and interaction with the ESP32.
+
+TECHNOLOGY STACK
+
+Use:
+
+Flutter (latest stable)
+
+Dart
+
+Material 3
+
+flutter_bluetooth_serial
+(or the best maintained Bluetooth package)
+
+Provider or Riverpod for state management
+
+Shared Preferences
+
+Responsive Layout
+
+Dark Mode
+
+Light Mode
+
+Custom animations
+
+Proper architecture
+
+Repository Pattern
+
+Clean Code
+
+APP FLOW
+
+Splash Screen
+
+↓
+
+Bluetooth Permission Screen
+
+↓
+
+Bluetooth Device Scan
+
+↓
+
+Connect to ESP32
+
+↓
+
+Dashboard
+
+↓
+
+Control Scoreboard
+
+SPLASH SCREEN
+
+Create an animated splash screen.
+
+Include:
+
+Large scoreboard illustration
+
+Project title
+
+Digital Sports Scoreboard
+
+Loading animation
+
+Fade transition
+
+BLUETOOTH SCREEN
+
+Automatically:
+
+Request Bluetooth permissions
+
+Request Location Permission if needed
+
+Enable Bluetooth
+
+Show nearby devices
+
+Search animation
+
+Display device cards.
+
+Each card contains:
+
+Bluetooth icon
+
+Device Name
+
+MAC Address
+
+Signal Strength (if available)
+
+Connect button
+
+When connected:
+
+Show green connected indicator.
+
+Automatically navigate to Dashboard.
+
+DASHBOARD
+
+Design a premium dashboard.
+
+Top App Bar
+
+Project logo
+
+Connection Status
+
+Battery Icon
+
+Settings icon
+
+Below:
+
+Large Scoreboard Preview Card
+
+It should show
+
+TEAM A
+
+0
+
+VS
+
+0
+
+TEAM B
+
+This preview updates live.
+
+Below it
+
+Four Quick Action Buttons
+
+Start Match
+
+End Match
+
+Reset
+
+Play Test Audio
+
+Each should have beautiful icons.
+
+TEAM MANAGEMENT
+
+Create editable cards.
+
+Team A
+
+Text field
+
+Color Picker
+
+Save button
+
+Team Logo placeholder
+
+Same for Team B.
+
+After pressing save:
+
+Send Bluetooth command
+
+NAMEA:Manchester United
+
+Example.
+
+SCORE CONTROL
+
+Design two beautiful panels.
+
+TEAM A
+
+Large Score
+
+Huge + button
+
+Huge - button
+
+Buttons should animate.
+
+When clicked:
+
+Increase locally
+
+Update preview
+
+Send Bluetooth command.
+
+Example:
+
+A+
+
+A-
+
+Do same for Team B.
+
+COMMANDS
+
+Use these commands.
+
+START
+
+END
+
+RESET
+
+A+
+
+A-
+
+B+
+
+B-
+
+NAMEA:<name>
+
+NAMEB:<name>
+
+AUDIO
+
+Allow easy modification later.
+
+LIVE SCOREBOARD CARD
+
+Create a beautiful scoreboard card.
+
+Example
+
+Manchester United
+
+12
+
+VS
+
+8
+
+Chelsea
+
+Use digital fonts.
+
+Animated score transitions.
+
+MATCH TIMER
+
+Although timer is a future enhancement, implement it in the mobile app.
+
+Features:
+
+Start
+
+Pause
+
+Resume
+
+Reset
+
+Countdown
+
+Count Up
+
+Default:
+
+00:00
+
+Should not require ESP32.
+
+MATCH HISTORY
+
+Store locally.
+
+Each match stores
+
+Date
+
+Time
+
+Team Names
+
+Final Scores
+
+Winner
+
+Duration
+
+History Screen
+
+Search
+
+Delete
+
+Share
+
+SETTINGS
+
+Create:
+
+Dark Mode
+
+Light Mode
+
+Auto Theme
+
+Bluetooth Settings
+
+Score Increment Sound Toggle
+
+Animation Toggle
+
+Reset App Data
+
+About
+
+ABOUT SCREEN
+
+Include
+
+Project Name
+
+Digital Sports Scoreboard
+
+Developed by
+
+(Leave blank for me)
+
+University
+
+(Leave blank)
+
+Version
+
+1.0
+
+BLUETOOTH SERVICE
+
+Separate all Bluetooth code.
+
+BluetoothService.dart
+
+Functions
+
+connect()
+
+disconnect()
+
+sendCommand()
+
+receiveData()
+
+scan()
+
+Reconnect automatically.
+
+STATE MANAGEMENT
+
+Separate providers.
+
+Bluetooth Provider
+
+Score Provider
+
+Settings Provider
+
+History Provider
+
+FILE STRUCTURE
+
+Create professional structure.
+
+lib/
+
+main.dart
+
+screens/
+
+widgets/
+
+models/
+
+providers/
+
+services/
+
+repositories/
+
+utils/
+
+themes/
+
+animations/
+
+assets/
+
+BEAUTIFUL UI
+
+Use
+
+Cards
+
+Rounded Corners
+
+Elevation
+
+Material 3
+
+Icons
+
+Hero animations
+
+Page transitions
+
+Ripple effects
+
+Animated Containers
+
+Glassmorphism where suitable
+
+Modern dashboard
+
+Do NOT create a basic interface.
+
+I want it to look like something published on Google Play.
+
+RESPONSIVENESS
+
+Support:
+
+Android phones
+
+Small screens
+
+Large screens
+
+Tablets
+
+Landscape
+
+Portrait
+
+CODE QUALITY
+
+Use:
+
+Meaningful variable names
+
+Comments
+
+Documentation
+
+Error handling
+
+Loading indicators
+
+SnackBars
+
+Dialogs
+
+Reusable widgets
+
+No duplicated code
+
+EXTRA FEATURES
+
+Add:
+
+Connection Lost dialog
+
+Reconnect button
+
+Bluetooth status indicator
+
+Offline Mode
+
+Simulation Mode (for testing without ESP32)
+
+Export match history to CSV
+
+Statistics page
+
+Total Matches
+
+Highest Score
+
+Average Score
+
+Wins Per Team
+
+DELIVERABLES
+
+Generate:
+
+Complete Flutter project
+All Dart files
+pubspec.yaml
+Folder structure
+Bluetooth implementation
+Beautiful UI
+Assets folder structure
+Theme implementation
+README.md
+Installation guide
+Bluetooth command documentation
+Testing instructions
+Future improvements
+
+Do not skip any screens.
+
+Do not leave TODOs.
+
+Do not generate pseudocode.
+
+Write complete production-quality Flutter code with a polished, modern user experience suitable for a university final-year demonstration.
+
+Sources
+The plan is to add a music player something to control music . So like a pause button , play button , next etc  
+
+That's actually a very good addition. Since you're already using a DFPlayer Mini, the mobile app can become the controller for the music being played on the scoreboard. Instead of only playing fixed sounds (Game Start, End Game, etc.), the app can also function as a simple music remote.
+
+I would update the Claude prompt by adding the following section.
+
+MUSIC PLAYER CONTROL
+
+The Digital Sports Scoreboard includes a DFPlayer Mini connected to the ESP32. The mobile application must provide a dedicated Music Player screen that allows the operator to remotely control background music during sporting events.
+
+Music Player Features
+
+Create a modern, premium music player interface similar to Spotify or Apple Music.
+
+Display:
+
+Current song title (received from ESP32 or stored locally)
+Album artwork placeholder
+Music progress bar (optional)
+Current volume level
+Bluetooth connection status
+Playback Controls
+
+Include large animated buttons for:
+
+▶ Play
+⏸ Pause
+⏭ Next Track
+⏮ Previous Track
+🔁 Repeat
+🔀 Shuffle (optional)
+🔊 Volume Up
+🔉 Volume Down
+🔇 Mute
+
+All buttons should include smooth Material 3 animations and haptic feedback.
+
+Bluetooth Commands
+
+Send the following commands to the ESP32:
+
+PLAY
+PAUSE
+NEXT
+PREV
+VOLUP
+VOLDOWN
+MUTE
+UNMUTE
+REPEAT
+SHUFFLE
+
+The Bluetooth service should make it easy to modify these commands later.
+
+MUSIC LIBRARY
+
+Create a Music Library page showing all audio files available on the DFPlayer Mini.
+
+Display each track as a modern card containing:
+
+Track Number
+Song Name
+Duration (if available)
+Play Button
+
+Selecting a song sends:
+
+PLAYTRACK:<track_number>
+
+Example:
+
+PLAYTRACK:5
+NOW PLAYING CARD
+
+Display a "Now Playing" card on the Dashboard.
+
+Example:
+
+🎵 Now Playing
+
+Match Anthem.mp3
+
+▶ Playing
+
+The card should update whenever a different song is selected.
+
+QUICK MUSIC CONTROLS
+
+On the Dashboard, include a compact music widget with:
+
+▶ Play
+
+⏸ Pause
+
+⏭ Next
+
+🔊 Volume
+
+This allows quick control without opening the Music screen.
+
+SETTINGS
+
+Add music settings:
+
+Enable Background Music
+Default Startup Music
+Auto Play on Game Start
+Stop Music on Game End
+Default Volume Slider
+Sound Effects Toggle
+Announcement Volume
+Music Volume
+MATCH AUTOMATION
+
+The app should automatically send commands based on match events.
+
+When Start Match is pressed:
+
+START
+PLAY
+
+When End Match is pressed:
+
+END
+PAUSE
+
+When a team scores:
+
+A+
+
+or
+
+B+
+
+The ESP32 should briefly play a scoring sound effect before resuming background music.
+
+One suggestion
+
+Since this is a Computer Science final-year project, you could make the app feel even more polished by adding three bottom navigation tabs:
+
+Dashboard – Live scoreboard, quick controls, and Now Playing widget.
+Music – Full music player with playlist, playback controls, and volume.
+History – Match history, statistics, and previous game results.
+
+This layout is intuitive, looks professional, and showcases more functionality during your demonstration. It also aligns well with your scoreboard's Bluetooth-controlled design and DFPlayer Mini audio capabilities described in your project document.
