@@ -388,8 +388,8 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
                               device: device,
                               isConnecting: connectingThis,
                               isConnected: connectedThis,
-                              onConnect: connectingThis || connectedThis
-                                  ? () {}
+                              onConnect: isConnecting || connectedThis
+                                  ? null
                                   : () => _connectDevice(device),
                             );
                           },

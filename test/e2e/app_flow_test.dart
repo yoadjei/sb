@@ -119,4 +119,32 @@ void main() {
     expect(find.byIcon(Icons.remove_rounded), findsWidgets);
     await finish(tester);
   });
+
+  testWidgets('start match and open music teams history hubs', (tester) async {
+    await pumpApp(tester);
+    await advanceSplash(tester);
+    await enterSimulation(tester);
+
+    await tester.tap(find.text('Start Match'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('End Match'), findsOneWidget);
+
+    Future<void> openHub(String label, Finder expected) async {
+      final tile = find.text(label);
+      await tester.ensureVisible(tile);
+      await tester.tap(tile);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(expected, findsOneWidget);
+      await tester.pageBack();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    await openHub('Music', find.text('Music Player'));
+    await openHub('Teams', find.text('TEAM A'));
+    await openHub('History', find.text('Match History'));
+    await finish(tester);
+  });
 }

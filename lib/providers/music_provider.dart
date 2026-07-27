@@ -6,6 +6,7 @@ import '../models/music_track.dart';
 import '../models/scoreboard_telemetry.dart';
 import '../repositories/music_library_repository.dart';
 import '../utils/commands.dart';
+import '../utils/error_messages.dart';
 import 'connection_provider.dart';
 
 class MusicState {
@@ -91,13 +92,19 @@ class MusicNotifier extends Notifier<MusicState> {
   }
 
   Future<void> play() async {
+    final previous = state;
     state = state.copyWith(playing: true, clearError: true);
-    await _send(ScoreboardCommands.play);
+    if (!await _send(ScoreboardCommands.play)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> pause() async {
+    final previous = state;
     state = state.copyWith(playing: false, clearError: true);
-    await _send(ScoreboardCommands.pause);
+    if (!await _send(ScoreboardCommands.pause)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> next() async {
@@ -111,42 +118,61 @@ class MusicNotifier extends Notifier<MusicState> {
   }
 
   Future<void> volumeUp() async {
+    final previous = state;
     state = state.copyWith(
       volume: (state.volume + 1).clamp(0, 30),
       clearError: true,
     );
-    await _send(ScoreboardCommands.volUp);
+    if (!await _send(ScoreboardCommands.volUp)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> volumeDown() async {
+    final previous = state;
     state = state.copyWith(
       volume: (state.volume - 1).clamp(0, 30),
       clearError: true,
     );
-    await _send(ScoreboardCommands.volDown);
+    if (!await _send(ScoreboardCommands.volDown)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> mute() async {
+    final previous = state;
     state = state.copyWith(muted: true, clearError: true);
-    await _send(ScoreboardCommands.mute);
+    if (!await _send(ScoreboardCommands.mute)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> unmute() async {
+    final previous = state;
     state = state.copyWith(muted: false, clearError: true);
-    await _send(ScoreboardCommands.unmute);
+    if (!await _send(ScoreboardCommands.unmute)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> toggleRepeat() async {
+    final previous = state;
     state = state.copyWith(repeat: !state.repeat, clearError: true);
-    await _send(ScoreboardCommands.repeat);
+    if (!await _send(ScoreboardCommands.repeat)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> toggleShuffle() async {
+    final previous = state;
     state = state.copyWith(shuffle: !state.shuffle, clearError: true);
-    await _send(ScoreboardCommands.shuffle);
+    if (!await _send(ScoreboardCommands.shuffle)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> playTrack(int number) async {
+    final previous = state;
     MusicTrack? track;
     for (final t in state.tracks) {
       if (t.number == number) {
@@ -159,14 +185,18 @@ class MusicNotifier extends Notifier<MusicState> {
       currentTitle: track?.title,
       clearError: true,
     );
-    await _send(ScoreboardCommands.playTrack(number));
+    if (!await _send(ScoreboardCommands.playTrack(number))) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
-  Future<void> _send(String command) async {
+  Future<bool> _send(String command) async {
     try {
       await ref.read(scoreboardConnectionProvider).send(command);
+      return true;
     } catch (error) {
-      state = state.copyWith(lastError: error.toString());
+      state = state.copyWith(lastError: friendlyError(error));
+      return false;
     }
   }
 }

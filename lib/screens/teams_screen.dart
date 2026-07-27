@@ -116,6 +116,7 @@ class _TeamsScreenState extends ConsumerState<TeamsScreen> {
     }
 
     if (!mounted) return;
+    if (ref.read(scoreProvider).lastError != null) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${isA ? 'Team A' : 'Team B'} saved'),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import 'package:digital_sports_scoreboard/providers/settings_provider.dart';
 
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.windows;
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 
@@ -18,7 +20,10 @@ void main() {
         child: const DigitalSportsScoreboardApp(),
       ),
     );
+    await tester.pump();
 
-    expect(find.text('Scoreboard'), findsOneWidget);
+    expect(find.text('ArenaBoard'), findsOneWidget);
+
+    debugDefaultTargetPlatformOverride = null;
   });
 }

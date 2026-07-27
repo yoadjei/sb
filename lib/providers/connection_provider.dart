@@ -8,6 +8,7 @@ import '../models/scoreboard_telemetry.dart';
 import '../services/bluetooth_scoreboard_connection.dart';
 import '../services/scoreboard_connection.dart';
 import '../services/simulation_scoreboard_connection.dart';
+import '../utils/error_messages.dart';
 
 export '../services/scoreboard_connection.dart';
 
@@ -59,6 +60,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   bool _useSimulation = false;
   bool _wasConnected = false;
   bool _scanInFlight = false;
+  bool _connectInFlight = false;
 
   ScoreboardConnection get connection {
     final instances = ref.read(_connectionInstancesProvider);
@@ -93,7 +95,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
     } catch (error) {
       state = state.copyWith(
         mode: ConnectionMode.disconnected,
-        lastError: error.toString(),
+        lastError: friendlyError(error),
       );
     } finally {
       _scanInFlight = false;
@@ -124,6 +126,8 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   }
 
   Future<void> connectDevice(BtDevice device) async {
+    if (_connectInFlight) return;
+    _connectInFlight = true;
     _useSimulation = false;
     _lastDevice = device;
     state = state.copyWith(
@@ -142,12 +146,16 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
     } catch (error) {
       state = state.copyWith(
         mode: ConnectionMode.disconnected,
-        lastError: error.toString(),
+        lastError: friendlyError(error),
       );
+    } finally {
+      _connectInFlight = false;
     }
   }
 
   Future<void> enterSimulation() async {
+    if (_connectInFlight) return;
+    _connectInFlight = true;
     _useSimulation = true;
     _lastDevice = null;
     state = state.copyWith(
@@ -168,8 +176,10 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
     } catch (error) {
       state = state.copyWith(
         mode: ConnectionMode.disconnected,
-        lastError: error.toString(),
+        lastError: friendlyError(error),
       );
+    } finally {
+      _connectInFlight = false;
     }
   }
 
@@ -179,7 +189,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
     try {
       await connection.disconnect();
     } catch (error) {
-      state = state.copyWith(lastError: error.toString());
+      state = state.copyWith(lastError: friendlyError(error));
     }
     state = const ConnectionStatus(mode: ConnectionMode.disconnected);
   }

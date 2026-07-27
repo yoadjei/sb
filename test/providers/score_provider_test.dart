@@ -19,4 +19,19 @@ void main() {
     expect(state.teamA.score, 1);
     expect(sim.lastCommand, ScoreboardCommands.aPlus);
   });
+
+  test('incrementA rolls back and sets friendly error when disconnected', () async {
+    final sim = SimulationScoreboardConnection();
+    await sim.connect();
+    final container = ProviderContainer(overrides: [
+      scoreboardConnectionProvider.overrideWithValue(sim),
+    ]);
+    addTearDown(container.dispose);
+
+    await sim.disconnect();
+    await container.read(scoreProvider.notifier).incrementA();
+    final state = container.read(scoreProvider);
+    expect(state.teamA.score, 0);
+    expect(state.lastError, 'Not connected to the scoreboard');
+  });
 }

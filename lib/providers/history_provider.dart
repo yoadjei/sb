@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/match_record.dart';
 import '../repositories/match_history_repository.dart';
 import '../utils/csv_export.dart';
+import '../utils/error_messages.dart';
 import 'score_provider.dart';
 
 class HistoryState {
@@ -72,7 +73,7 @@ class HistoryNotifier extends Notifier<HistoryState> {
         clearError: true,
       );
     } catch (error) {
-      state = state.copyWith(lastError: error.toString());
+      state = state.copyWith(lastError: friendlyError(error));
     }
   }
 
@@ -81,7 +82,7 @@ class HistoryNotifier extends Notifier<HistoryState> {
       await _repo.clear();
       state = const HistoryState();
     } catch (error) {
-      state = state.copyWith(lastError: error.toString());
+      state = state.copyWith(lastError: friendlyError(error));
     }
   }
 

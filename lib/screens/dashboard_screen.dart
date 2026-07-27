@@ -15,6 +15,7 @@ import '../providers/timer_provider.dart';
 import '../themes/colors.dart';
 import '../themes/stadium_style.dart';
 import '../utils/commands.dart';
+import '../utils/error_messages.dart';
 import '../widgets/connection_banner.dart';
 import '../widgets/connection_lost_dialog.dart';
 import '../widgets/hub_tile.dart';
@@ -51,6 +52,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     _listenForConnectionLoss();
     _listenForScoreErrors();
+    _listenForMusicErrors();
 
     return StadiumScaffold(
       appBar: _buildAppBar(context, connection),
@@ -288,6 +290,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (error == null || error == previous?.lastError) {
         return;
       }
+      // Only surface when dashboard is the top route to avoid duplicate snacks.
+      if (ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: StadiumColors.rival,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      });
+    });
+  }
+
+  void _listenForMusicErrors() {
+    ref.listen(musicProvider, (previous, next) {
+      final error = next.lastError;
+      if (error == null || error == previous?.lastError) {
+        return;
+      }
+      if (ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -352,7 +381,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.toString()),
+          content: Text(friendlyError(error)),
           backgroundColor: StadiumColors.rival,
           behavior: SnackBarBehavior.floating,
         ),

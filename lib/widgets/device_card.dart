@@ -15,7 +15,7 @@ class DeviceCard extends StatelessWidget {
   });
 
   final BtDevice device;
-  final VoidCallback onConnect;
+  final VoidCallback? onConnect;
   final bool isConnecting;
   final bool isConnected;
 

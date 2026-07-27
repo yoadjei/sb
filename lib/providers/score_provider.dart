@@ -7,6 +7,7 @@ import '../models/team.dart';
 import '../repositories/match_history_repository.dart';
 import '../themes/colors.dart';
 import '../utils/commands.dart';
+import '../utils/error_messages.dart';
 import 'connection_provider.dart';
 import 'settings_provider.dart';
 
@@ -65,41 +66,53 @@ class ScoreNotifier extends Notifier<ScoreState> {
   }
 
   Future<void> incrementA() async {
+    final previous = state;
     state = state.copyWith(
       teamA: state.teamA.copyWith(score: state.teamA.score + 1),
       clearError: true,
     );
-    await _send(ScoreboardCommands.aPlus);
+    if (!await _send(ScoreboardCommands.aPlus)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> decrementA() async {
     if (state.teamA.score <= 0) {
       return;
     }
+    final previous = state;
     state = state.copyWith(
       teamA: state.teamA.copyWith(score: state.teamA.score - 1),
       clearError: true,
     );
-    await _send(ScoreboardCommands.aMinus);
+    if (!await _send(ScoreboardCommands.aMinus)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> incrementB() async {
+    final previous = state;
     state = state.copyWith(
       teamB: state.teamB.copyWith(score: state.teamB.score + 1),
       clearError: true,
     );
-    await _send(ScoreboardCommands.bPlus);
+    if (!await _send(ScoreboardCommands.bPlus)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> decrementB() async {
     if (state.teamB.score <= 0) {
       return;
     }
+    final previous = state;
     state = state.copyWith(
       teamB: state.teamB.copyWith(score: state.teamB.score - 1),
       clearError: true,
     );
-    await _send(ScoreboardCommands.bMinus);
+    if (!await _send(ScoreboardCommands.bMinus)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> setNameA(String name) async {
@@ -108,11 +121,14 @@ class ScoreNotifier extends Notifier<ScoreState> {
       state = state.copyWith(lastError: 'Team name cannot be empty');
       return;
     }
+    final previous = state;
     state = state.copyWith(
       teamA: state.teamA.copyWith(name: trimmed),
       clearError: true,
     );
-    await _send(ScoreboardCommands.nameA(trimmed));
+    if (!await _send(ScoreboardCommands.nameA(trimmed))) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   Future<void> setNameB(String name) async {
@@ -121,11 +137,14 @@ class ScoreNotifier extends Notifier<ScoreState> {
       state = state.copyWith(lastError: 'Team name cannot be empty');
       return;
     }
+    final previous = state;
     state = state.copyWith(
       teamB: state.teamB.copyWith(name: trimmed),
       clearError: true,
     );
-    await _send(ScoreboardCommands.nameB(trimmed));
+    if (!await _send(ScoreboardCommands.nameB(trimmed))) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   void setColorA(Color color) {
@@ -143,13 +162,17 @@ class ScoreNotifier extends Notifier<ScoreState> {
   }
 
   Future<void> startMatch() async {
+    final previous = state;
     final now = DateTime.now();
     state = state.copyWith(
       matchActive: true,
       startedAt: now,
       clearError: true,
     );
-    await _send(ScoreboardCommands.start);
+    if (!await _send(ScoreboardCommands.start)) {
+      state = previous.copyWith(lastError: state.lastError);
+      return;
+    }
 
     final settings = ref.read(settingsProvider);
     if (settings.autoPlayOnGameStart) {
@@ -158,6 +181,7 @@ class ScoreNotifier extends Notifier<ScoreState> {
   }
 
   Future<void> endMatch() async {
+    final previous = state;
     final startedAt = state.startedAt;
     final teamA = state.teamA;
     final teamB = state.teamB;
@@ -168,7 +192,10 @@ class ScoreNotifier extends Notifier<ScoreState> {
       clearError: true,
     );
 
-    await _send(ScoreboardCommands.end);
+    if (!await _send(ScoreboardCommands.end)) {
+      state = previous.copyWith(lastError: state.lastError);
+      return;
+    }
 
     final settings = ref.read(settingsProvider);
     if (settings.stopMusicOnGameEnd) {
@@ -192,17 +219,20 @@ class ScoreNotifier extends Notifier<ScoreState> {
       try {
         await ref.read(matchHistoryRepositoryProvider).add(record);
       } catch (error) {
-        state = state.copyWith(lastError: error.toString());
+        state = state.copyWith(lastError: friendlyError(error));
       }
     }
   }
 
   Future<void> resetMatch() async {
+    final previous = state;
     state = ScoreState(
       teamA: const Team(name: defaultNameA, color: StadiumColors.accent),
       teamB: const Team(name: defaultNameB, color: StadiumColors.rival),
     );
-    await _send(ScoreboardCommands.reset);
+    if (!await _send(ScoreboardCommands.reset)) {
+      state = previous.copyWith(lastError: state.lastError);
+    }
   }
 
   String _winner(int scoreA, int scoreB) {
@@ -215,11 +245,13 @@ class ScoreNotifier extends Notifier<ScoreState> {
     return 'Draw';
   }
 
-  Future<void> _send(String command) async {
+  Future<bool> _send(String command) async {
     try {
       await ref.read(scoreboardConnectionProvider).send(command);
+      return true;
     } catch (error) {
-      state = state.copyWith(lastError: error.toString());
+      state = state.copyWith(lastError: friendlyError(error));
+      return false;
     }
   }
 }
