@@ -11,6 +11,7 @@ import '../providers/score_provider.dart';
 import '../providers/settings_provider.dart';
 import '../themes/colors.dart';
 import '../themes/stadium_style.dart';
+import '../utils/app_brand.dart';
 import '../widgets/stadium_scaffold.dart';
 import 'about_screen.dart';
 import 'bluetooth_scan_screen.dart';
@@ -126,7 +127,7 @@ class SettingsScreen extends ConsumerWidget {
           _SectionHeader('About'),
           _ActionTile(
             title: 'About ArenaBoard',
-            subtitle: 'Version ${AboutScreen.appVersion}',
+            subtitle: 'Version ${AppBrand.version}',
             icon: Icons.info_outline_rounded,
             onTap: () {
               Navigator.of(context).push(
