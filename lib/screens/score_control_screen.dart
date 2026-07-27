@@ -46,44 +46,51 @@ class _ScoreControlScreenState extends ConsumerState<ScoreControlScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final wide = constraints.maxWidth >= 700;
+          final maxContentWidth = wide ? 960.0 : 720.0;
+
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                LiveScoreboardCard(
-                  teamA: score.teamA,
-                  teamB: score.teamB,
-                  timerLabel: '—',
-                  matchActive: score.matchActive,
-                  animationsEnabled: settings.animationsEnabled,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'ADJUST SCORES',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.4,
-                    color: Colors.white54,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (wide)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: _panelA(score, settings)),
-                      const SizedBox(width: 16),
-                      Expanded(child: _panelB(score, settings)),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxContentWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    LiveScoreboardCard(
+                      teamA: score.teamA,
+                      teamB: score.teamB,
+                      timerLabel: '—',
+                      matchActive: score.matchActive,
+                      animationsEnabled: settings.animationsEnabled,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'ADJUST SCORES',
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                        color: Colors.white54,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (wide)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: _panelA(score, settings)),
+                          const SizedBox(width: 16),
+                          Expanded(child: _panelB(score, settings)),
+                        ],
+                      )
+                    else ...[
+                      _panelA(score, settings),
+                      const SizedBox(height: 16),
+                      _panelB(score, settings),
                     ],
-                  )
-                else ...[
-                  _panelA(score, settings),
-                  const SizedBox(height: 16),
-                  _panelB(score, settings),
-                ],
-              ],
+                  ],
+                ),
+              ),
             ),
           );
         },

@@ -26,74 +26,83 @@ class QuickMusicBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: StadiumColors.navy.withValues(alpha: 0.6),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        children: [
-          _ControlButton(
-            icon: playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-            label: playing ? 'Pause' : 'Play',
-            highlighted: true,
-            onPressed: onPlayPause,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 380;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: StadiumColors.navy.withValues(alpha: 0.6),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
           ),
-          const SizedBox(width: 8),
-          _ControlButton(
-            icon: Icons.skip_next_rounded,
-            label: 'Next',
-            onPressed: onNext,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Row(
-              children: [
-                Icon(
-                  muted ? Icons.volume_off_rounded : Icons.volume_down_rounded,
-                  color: Colors.white54,
-                  size: 18,
-                ),
-                Expanded(
-                  child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 3,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                      overlayShape: SliderComponentShape.noOverlay,
-                      activeTrackColor: StadiumColors.accent,
-                      inactiveTrackColor: Colors.white12,
-                      thumbColor: StadiumColors.accent,
+          child: Row(
+            children: [
+              _ControlButton(
+                icon: playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                label: playing ? 'Pause' : 'Play',
+                showLabel: !compact,
+                highlighted: true,
+                onPressed: onPlayPause,
+              ),
+              const SizedBox(width: 8),
+              _ControlButton(
+                icon: Icons.skip_next_rounded,
+                label: 'Next',
+                showLabel: !compact,
+                onPressed: onNext,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      muted ? Icons.volume_off_rounded : Icons.volume_down_rounded,
+                      color: Colors.white54,
+                      size: 18,
                     ),
-                    child: Slider(
-                      value: volume.clamp(0, 30).toDouble(),
-                      min: 0,
-                      max: 30,
-                      onChanged: null,
+                    Expanded(
+                      child: SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 3,
+                          thumbShape:
+                              const RoundSliderThumbShape(enabledThumbRadius: 6),
+                          overlayShape: SliderComponentShape.noOverlay,
+                          activeTrackColor: StadiumColors.accent,
+                          inactiveTrackColor: Colors.white12,
+                          thumbColor: StadiumColors.accent,
+                        ),
+                        child: Slider(
+                          value: volume.clamp(0, 30).toDouble(),
+                          min: 0,
+                          max: 30,
+                          onChanged: null,
+                        ),
+                      ),
                     ),
-                  ),
+                    _IconTap(
+                      icon: Icons.remove_rounded,
+                      onPressed: onVolumeDown,
+                    ),
+                    Text(
+                      '$volume',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 12,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    _IconTap(
+                      icon: Icons.add_rounded,
+                      onPressed: onVolumeUp,
+                    ),
+                  ],
                 ),
-                _IconTap(
-                  icon: Icons.remove_rounded,
-                  onPressed: onVolumeDown,
-                ),
-                Text(
-                  '$volume',
-                  style: GoogleFonts.robotoMono(
-                    fontSize: 12,
-                    color: Colors.white70,
-                  ),
-                ),
-                _IconTap(
-                  icon: Icons.add_rounded,
-                  onPressed: onVolumeUp,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -104,12 +113,14 @@ class _ControlButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.highlighted = false,
+    this.showLabel = true,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
   final bool highlighted;
+  final bool showLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +136,10 @@ class _ControlButton extends StatelessWidget {
           onPressed();
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: EdgeInsets.symmetric(
+            horizontal: showLabel ? 14 : 10,
+            vertical: 10,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -134,15 +148,17 @@ class _ControlButton extends StatelessWidget {
                 color: highlighted ? StadiumColors.accent : Colors.white70,
                 size: 22,
               ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: highlighted ? StadiumColors.accent : Colors.white70,
+              if (showLabel) ...[
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: GoogleFonts.spaceGrotesk(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: highlighted ? StadiumColors.accent : Colors.white70,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

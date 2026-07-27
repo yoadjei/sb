@@ -31,120 +31,134 @@ class LiveScoreboardCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             );
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            StadiumColors.navyMid.withValues(alpha: 0.95),
-            StadiumColors.navy,
-          ],
-        ),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: StadiumColors.accent.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 340;
+        final scoreGap = compact ? 12.0 : 48.0;
+
+        return Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                StadiumColors.navyMid.withValues(alpha: 0.95),
+                StadiumColors.navy,
+              ],
+            ),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: StadiumColors.accent.withValues(alpha: 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-        child: Column(
-          children: [
-            Row(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(compact ? 14 : 20, 20, compact ? 14 : 20, 16),
+            child: Column(
               children: [
-                Icon(
-                  matchActive ? Icons.circle : Icons.circle_outlined,
-                  size: 10,
-                  color: matchActive ? StadiumColors.accent : Colors.white38,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  matchActive ? 'LIVE MATCH' : 'SCOREBOARD',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 2,
-                    color: matchActive ? StadiumColors.accent : Colors.white54,
-                  ),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.timer_outlined,
-                  size: 14,
-                  color: Colors.white54,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  timerLabel,
-                  style: GoogleFonts.robotoMono(
-                    fontSize: 13,
-                    color: Colors.white70,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _TeamColumn(team: teamA, align: CrossAxisAlignment.start)),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(
-                    'VS',
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white30,
-                      letterSpacing: 2,
+                Row(
+                  children: [
+                    Icon(
+                      matchActive ? Icons.circle : Icons.circle_outlined,
+                      size: 10,
+                      color: matchActive ? StadiumColors.accent : Colors.white38,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        matchActive ? 'LIVE MATCH' : 'SCOREBOARD',
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 2,
+                          color: matchActive ? StadiumColors.accent : Colors.white54,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.timer_outlined,
+                      size: 14,
+                      color: Colors.white54,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      timerLabel,
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 13,
+                        color: Colors.white70,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: _TeamColumn(
-                    team: teamB,
-                    align: CrossAxisAlignment.end,
-                  ),
+                const SizedBox(height: 20),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _TeamColumn(team: teamA, align: CrossAxisAlignment.start),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        'VS',
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: compact ? 14 : 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white30,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: _TeamColumn(
+                        team: teamB,
+                        align: CrossAxisAlignment.end,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: _AnimatedScore(
+                        score: teamA.score,
+                        color: teamA.color,
+                        style: scoreStyle,
+                        align: TextAlign.start,
+                        animationsEnabled: animationsEnabled,
+                        compact: compact,
+                      ),
+                    ),
+                    SizedBox(width: scoreGap),
+                    Expanded(
+                      child: _AnimatedScore(
+                        score: teamB.score,
+                        color: teamB.color,
+                        style: scoreStyle,
+                        align: TextAlign.end,
+                        animationsEnabled: animationsEnabled,
+                        compact: compact,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: _AnimatedScore(
-                    score: teamA.score,
-                    color: teamA.color,
-                    style: scoreStyle,
-                    align: TextAlign.start,
-                    animationsEnabled: animationsEnabled,
-                  ),
-                ),
-                const SizedBox(width: 48),
-                Expanded(
-                  child: _AnimatedScore(
-                    score: teamB.score,
-                    color: teamB.color,
-                    style: scoreStyle,
-                    align: TextAlign.end,
-                    animationsEnabled: animationsEnabled,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -202,6 +216,7 @@ class _AnimatedScore extends StatelessWidget {
     required this.style,
     required this.align,
     required this.animationsEnabled,
+    this.compact = false,
   });
 
   final int score;
@@ -209,13 +224,17 @@ class _AnimatedScore extends StatelessWidget {
   final TextStyle style;
   final TextAlign align;
   final bool animationsEnabled;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final text = Text(
       '$score',
       textAlign: align,
-      style: style.copyWith(color: color),
+      style: style.copyWith(
+        color: color,
+        fontSize: compact ? (style.fontSize ?? 48) * 0.85 : style.fontSize,
+      ),
     );
 
     if (!animationsEnabled) {

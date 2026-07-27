@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../animations/fade_page_route.dart';
+import '../models/app_settings.dart';
 import '../models/connection_status.dart';
 import '../providers/connection_provider.dart';
 import '../providers/history_provider.dart';
@@ -52,134 +53,141 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return StadiumScaffold(
       appBar: _buildAppBar(context, connection),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ConnectionBanner(status: connection),
-            const SizedBox(height: 16),
-            LiveScoreboardCard(
-              teamA: score.teamA,
-              teamB: score.teamB,
-              timerLabel: _formatDuration(timer.duration),
-              matchActive: score.matchActive,
-              animationsEnabled: settings.animationsEnabled,
-            ),
-            const SizedBox(height: 12),
-            MatchTimerBar(
-              label: _formatDuration(timer.duration),
-              running: timer.running,
-              onTap: () => _openScreen(context, const TimerScreen()),
-            ),
-            const SizedBox(height: 20),
-            NowPlayingCard(
-              title: music.currentTitle,
-              playing: music.playing,
-              muted: music.muted,
-            ),
-            const SizedBox(height: 10),
-            QuickMusicBar(
-              playing: music.playing,
-              muted: music.muted,
-              volume: music.volume,
-              onPlayPause: () {
-                if (music.playing) {
-                  ref.read(musicProvider.notifier).pause();
-                } else {
-                  ref.read(musicProvider.notifier).play();
-                }
-              },
-              onNext: () => ref.read(musicProvider.notifier).next(),
-              onVolumeDown: () => ref.read(musicProvider.notifier).volumeDown(),
-              onVolumeUp: () => ref.read(musicProvider.notifier).volumeUp(),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Quick Actions',
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                color: Colors.white54,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 900;
+          final maxContentWidth = wide ? 1100.0 : 720.0;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxContentWidth),
+                child: wide
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _DashboardPrimaryColumn(
+                              connection: connection,
+                              score: score,
+                              timer: timer,
+                              settings: settings,
+                              timerLabel: _formatDuration(timer.duration),
+                              onStart: () => ref.read(scoreProvider.notifier).startMatch(),
+                              onEnd: () {
+                                ref.read(scoreProvider.notifier).endMatch().then((_) {
+                                  ref.read(historyProvider.notifier).refresh();
+                                });
+                              },
+                              onReset: () => _confirmReset(context),
+                              onTestAudio: () => _sendTestAudio(context),
+                              onOpenTimer: () => _openScreen(context, const TimerScreen()),
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: _DashboardSecondaryColumn(
+                              music: music,
+                              onPlayPause: () {
+                                if (music.playing) {
+                                  ref.read(musicProvider.notifier).pause();
+                                } else {
+                                  ref.read(musicProvider.notifier).play();
+                                }
+                              },
+                              onNext: () => ref.read(musicProvider.notifier).next(),
+                              onVolumeDown: () =>
+                                  ref.read(musicProvider.notifier).volumeDown(),
+                              onVolumeUp: () => ref.read(musicProvider.notifier).volumeUp(),
+                              onOpenScreen: (screen) => _openScreen(context, screen),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ConnectionBanner(status: connection),
+                          const SizedBox(height: 16),
+                          LiveScoreboardCard(
+                            teamA: score.teamA,
+                            teamB: score.teamB,
+                            timerLabel: _formatDuration(timer.duration),
+                            matchActive: score.matchActive,
+                            animationsEnabled: settings.animationsEnabled,
+                          ),
+                          const SizedBox(height: 12),
+                          MatchTimerBar(
+                            label: _formatDuration(timer.duration),
+                            running: timer.running,
+                            onTap: () => _openScreen(context, const TimerScreen()),
+                          ),
+                          const SizedBox(height: 20),
+                          NowPlayingCard(
+                            title: music.currentTitle,
+                            playing: music.playing,
+                            muted: music.muted,
+                          ),
+                          const SizedBox(height: 10),
+                          QuickMusicBar(
+                            playing: music.playing,
+                            muted: music.muted,
+                            volume: music.volume,
+                            onPlayPause: () {
+                              if (music.playing) {
+                                ref.read(musicProvider.notifier).pause();
+                              } else {
+                                ref.read(musicProvider.notifier).play();
+                              }
+                            },
+                            onNext: () => ref.read(musicProvider.notifier).next(),
+                            onVolumeDown: () =>
+                                ref.read(musicProvider.notifier).volumeDown(),
+                            onVolumeUp: () => ref.read(musicProvider.notifier).volumeUp(),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Quick Actions',
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                              color: Colors.white54,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _QuickActionsRow(
+                            matchActive: score.matchActive,
+                            onStart: () => ref.read(scoreProvider.notifier).startMatch(),
+                            onEnd: () {
+                              ref.read(scoreProvider.notifier).endMatch().then((_) {
+                                ref.read(historyProvider.notifier).refresh();
+                              });
+                            },
+                            onReset: () => _confirmReset(context),
+                            onTestAudio: () => _sendTestAudio(context),
+                          ),
+                          const SizedBox(height: 28),
+                          Text(
+                            'Control Hub',
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                              color: Colors.white54,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _ControlHubGrid(
+                            onOpenScreen: (screen) => _openScreen(context, screen),
+                          ),
+                        ],
+                      ),
               ),
             ),
-            const SizedBox(height: 12),
-            _QuickActionsRow(
-              matchActive: score.matchActive,
-              onStart: () => ref.read(scoreProvider.notifier).startMatch(),
-              onEnd: () {
-                ref.read(scoreProvider.notifier).endMatch().then((_) {
-                  ref.read(historyProvider.notifier).refresh();
-                });
-              },
-              onReset: () => _confirmReset(context),
-              onTestAudio: () => _sendTestAudio(context),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Control Hub',
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                color: Colors.white54,
-              ),
-            ),
-            const SizedBox(height: 12),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth >= 600 ? 4 : 3;
-                return GridView.count(
-                  crossAxisCount: crossAxisCount,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.05,
-                  children: [
-                    HubTile(
-                      icon: Icons.sports_score_rounded,
-                      label: 'Score',
-                      onTap: () => _openScreen(context, const ScoreControlScreen()),
-                    ),
-                    HubTile(
-                      icon: Icons.groups_rounded,
-                      label: 'Teams',
-                      accentColor: StadiumColors.rival,
-                      onTap: () => _openScreen(context, const TeamsScreen()),
-                    ),
-                    HubTile(
-                      icon: Icons.library_music_rounded,
-                      label: 'Music',
-                      onTap: () => _openScreen(context, const MusicPlayerScreen()),
-                    ),
-                    HubTile(
-                      icon: Icons.history_rounded,
-                      label: 'History',
-                      onTap: () => _openScreen(context, const HistoryScreen()),
-                    ),
-                    HubTile(
-                      icon: Icons.bar_chart_rounded,
-                      label: 'Stats',
-                      onTap: () => _openScreen(context, const StatisticsScreen()),
-                    ),
-                    HubTile(
-                      icon: Icons.timer_rounded,
-                      label: 'Timer',
-                      onTap: () => _openScreen(context, const TimerScreen()),
-                    ),
-                    HubTile(
-                      icon: Icons.settings_rounded,
-                      label: 'Settings',
-                      onTap: () => _openScreen(context, const SettingsScreen()),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -203,7 +211,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          _StatusChip(status: status),
+          Flexible(child: _StatusChip(status: status)),
         ],
       ),
       actions: [
@@ -414,6 +422,189 @@ class _StatusChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DashboardPrimaryColumn extends StatelessWidget {
+  const _DashboardPrimaryColumn({
+    required this.connection,
+    required this.score,
+    required this.timer,
+    required this.settings,
+    required this.timerLabel,
+    required this.onStart,
+    required this.onEnd,
+    required this.onReset,
+    required this.onTestAudio,
+    required this.onOpenTimer,
+  });
+
+  final ConnectionStatus connection;
+  final ScoreState score;
+  final TimerState timer;
+  final AppSettings settings;
+  final String timerLabel;
+  final VoidCallback onStart;
+  final VoidCallback onEnd;
+  final VoidCallback onReset;
+  final VoidCallback onTestAudio;
+  final VoidCallback onOpenTimer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ConnectionBanner(status: connection),
+        const SizedBox(height: 16),
+        LiveScoreboardCard(
+          teamA: score.teamA,
+          teamB: score.teamB,
+          timerLabel: timerLabel,
+          matchActive: score.matchActive,
+          animationsEnabled: settings.animationsEnabled,
+        ),
+        const SizedBox(height: 12),
+        MatchTimerBar(
+          label: timerLabel,
+          running: timer.running,
+          onTap: onOpenTimer,
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Quick Actions',
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: Colors.white54,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _QuickActionsRow(
+          matchActive: score.matchActive,
+          onStart: onStart,
+          onEnd: onEnd,
+          onReset: onReset,
+          onTestAudio: onTestAudio,
+        ),
+      ],
+    );
+  }
+}
+
+class _DashboardSecondaryColumn extends StatelessWidget {
+  const _DashboardSecondaryColumn({
+    required this.music,
+    required this.onPlayPause,
+    required this.onNext,
+    required this.onVolumeDown,
+    required this.onVolumeUp,
+    required this.onOpenScreen,
+  });
+
+  final MusicState music;
+  final VoidCallback onPlayPause;
+  final VoidCallback onNext;
+  final VoidCallback onVolumeDown;
+  final VoidCallback onVolumeUp;
+  final void Function(Widget screen) onOpenScreen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        NowPlayingCard(
+          title: music.currentTitle,
+          playing: music.playing,
+          muted: music.muted,
+        ),
+        const SizedBox(height: 10),
+        QuickMusicBar(
+          playing: music.playing,
+          muted: music.muted,
+          volume: music.volume,
+          onPlayPause: onPlayPause,
+          onNext: onNext,
+          onVolumeDown: onVolumeDown,
+          onVolumeUp: onVolumeUp,
+        ),
+        const SizedBox(height: 28),
+        Text(
+          'Control Hub',
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: Colors.white54,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _ControlHubGrid(onOpenScreen: onOpenScreen),
+      ],
+    );
+  }
+}
+
+class _ControlHubGrid extends StatelessWidget {
+  const _ControlHubGrid({required this.onOpenScreen});
+
+  final void Function(Widget screen) onOpenScreen;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth >= 400 ? 3 : 2;
+        return GridView.count(
+          crossAxisCount: crossAxisCount,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.05,
+          children: [
+            HubTile(
+              icon: Icons.sports_score_rounded,
+              label: 'Score',
+              onTap: () => onOpenScreen(const ScoreControlScreen()),
+            ),
+            HubTile(
+              icon: Icons.groups_rounded,
+              label: 'Teams',
+              accentColor: StadiumColors.rival,
+              onTap: () => onOpenScreen(const TeamsScreen()),
+            ),
+            HubTile(
+              icon: Icons.library_music_rounded,
+              label: 'Music',
+              onTap: () => onOpenScreen(const MusicPlayerScreen()),
+            ),
+            HubTile(
+              icon: Icons.history_rounded,
+              label: 'History',
+              onTap: () => onOpenScreen(const HistoryScreen()),
+            ),
+            HubTile(
+              icon: Icons.bar_chart_rounded,
+              label: 'Stats',
+              onTap: () => onOpenScreen(const StatisticsScreen()),
+            ),
+            HubTile(
+              icon: Icons.timer_rounded,
+              label: 'Timer',
+              onTap: () => onOpenScreen(const TimerScreen()),
+            ),
+            HubTile(
+              icon: Icons.settings_rounded,
+              label: 'Settings',
+              onTap: () => onOpenScreen(const SettingsScreen()),
+            ),
+          ],
+        );
+      },
     );
   }
 }
