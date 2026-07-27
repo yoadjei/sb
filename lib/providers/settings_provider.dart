@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_settings.dart';
 import '../repositories/settings_repository.dart';
+import 'score_provider.dart';
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError(
@@ -42,6 +43,14 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   Future<void> setTheme(ThemePreference theme) async {
     await update(state.copyWith(theme: theme));
+  }
+
+  Future<void> resetAppData() async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.clear();
+    await ref.read(matchHistoryRepositoryProvider).clear();
+    state = const AppSettings();
+    await ref.read(settingsRepositoryProvider).save(state);
   }
 }
 
