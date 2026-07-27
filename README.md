@@ -1,6 +1,8 @@
-# Digital Sports Scoreboard
+# ArenaBoard
 
 Flutter operator app for a portable ESP32 sports scoreboard over Bluetooth Classic (SPP). Control live scores, team names, match lifecycle, and DFPlayer Mini music from your phone. **Simulation Mode** runs the full UI without hardware for demos and development.
+
+Developed by **Group 8**.
 
 ## Prerequisites
 

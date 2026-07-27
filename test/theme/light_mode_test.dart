@@ -44,7 +44,7 @@ void main() {
       ),
     );
 
-    final text = tester.widget<Text>(find.text('DSS'));
+    final text = tester.widget<Text>(find.text('AB'));
     expect(text.style?.color, StadiumColors.brand);
   });
 

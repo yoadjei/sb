@@ -125,7 +125,7 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           _SectionHeader('About'),
           _ActionTile(
-            title: 'About Digital Sports Scoreboard',
+            title: 'About ArenaBoard',
             subtitle: 'Version ${AboutScreen.appVersion}',
             icon: Icons.info_outline_rounded,
             onTap: () {

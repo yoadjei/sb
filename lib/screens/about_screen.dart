@@ -3,12 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/colors.dart';
 import '../themes/stadium_style.dart';
+import '../utils/app_brand.dart';
 import '../widgets/stadium_scaffold.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
-
-  static const appVersion = '1.0';
 
   @override
   Widget build(BuildContext context) {
@@ -32,39 +31,44 @@ class AboutScreen extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    StadiumColors.accent.withValues(alpha: 0.35),
-                    StadiumColors.navyMid,
+                    StadiumColors.brand,
+                    StadiumColors.brand.withValues(alpha: 0.75),
+                    StadiumColors.accent.withValues(alpha: 0.9),
                   ],
                 ),
-                border: Border.all(
-                  color: StadiumColors.accent.withValues(alpha: 0.4),
-                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: StadiumColors.brand.withValues(alpha: 0.28),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text(
-                  'DSS',
+                  AppBrand.mark,
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: StadiumColors.accent,
-                    letterSpacing: 2,
+                    color: StadiumColors.navy,
+                    letterSpacing: 1.2,
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              'Digital Sports Scoreboard',
+              AppBrand.name,
               textAlign: TextAlign.center,
               style: GoogleFonts.spaceGrotesk(
-                fontSize: 24,
+                fontSize: 28,
                 fontWeight: FontWeight.w700,
                 color: style.title,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Bluetooth operator console for ESP32 sports scoreboards',
+              AppBrand.tagline,
               textAlign: TextAlign.center,
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 14,
@@ -73,19 +77,25 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            _InfoRow(label: 'Developed by', value: '', style: style),
+            _InfoRow(
+              label: 'Developed by',
+              value: AppBrand.developedBy,
+              style: style,
+            ),
             const SizedBox(height: 12),
-            _InfoRow(label: 'University', value: '', style: style),
-            const SizedBox(height: 12),
-            _InfoRow(label: 'Version', value: appVersion, style: style),
+            _InfoRow(
+              label: 'Version',
+              value: AppBrand.version,
+              style: style,
+            ),
             const SizedBox(height: 32),
             Text(
               'Stadium Night Edition',
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 1.6,
-                color: StadiumColors.accent.withValues(alpha: 0.7),
+                letterSpacing: 1.2,
+                color: StadiumColors.brand.withValues(alpha: 0.85),
               ),
             ),
           ],
@@ -96,7 +106,11 @@ class AboutScreen extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value, required this.style});
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    required this.style,
+  });
 
   final String label;
   final String value;
@@ -123,7 +137,7 @@ class _InfoRow extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            value.isEmpty ? 'n/a' : value,
+            value,
             style: GoogleFonts.spaceGrotesk(
               fontSize: 14,
               fontWeight: FontWeight.w600,

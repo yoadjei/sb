@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/stadium_style.dart';
+import '../utils/app_brand.dart';
 
 /// Gradient-backed scaffold that follows light / dark theme.
 class StadiumScaffold extends StatelessWidget {
@@ -63,7 +64,7 @@ class StadiumAppBarTitle extends StatelessWidget {
   }
 }
 
-/// DSS brand mark used in app bars.
+/// ArenaBoard brand mark used in app bars.
 class DssLogoMark extends StatelessWidget {
   const DssLogoMark({super.key, this.size = 22});
 
@@ -73,7 +74,7 @@ class DssLogoMark extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = StadiumStyle.of(context);
     return Text(
-      'DSS',
+      AppBrand.mark,
       style: GoogleFonts.spaceGrotesk(
         fontSize: size,
         fontWeight: FontWeight.w800,

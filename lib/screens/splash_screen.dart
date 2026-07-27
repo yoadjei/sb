@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../animations/fade_page_route.dart';
 import '../themes/colors.dart';
+import '../utils/app_brand.dart';
 import 'permissions_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -128,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                'DSS',
+                                AppBrand.mark,
                                 style: GoogleFonts.spaceGrotesk(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w800,
@@ -140,10 +141,10 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                           const SizedBox(height: 28),
                           Text(
-                            'Digital Sports Scoreboard',
+                            AppBrand.name,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.spaceGrotesk(
-                              fontSize: 30,
+                              fontSize: 34,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                               height: 1.15,
@@ -151,7 +152,7 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Control live scores, music, and match flow from one operator console.',
+                            AppBrand.tagline,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.spaceGrotesk(
                               fontSize: 15,

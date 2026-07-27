@@ -1,5 +1,5 @@
 name: digital_sports_scoreboard
-description: Bluetooth-controlled Digital Sports Scoreboard operator app.
+description: ArenaBoard Bluetooth operator app for ESP32 sports scoreboards.
 publish_to: "none"
 version: 1.0.0+1
 

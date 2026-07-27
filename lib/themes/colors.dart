@@ -5,7 +5,7 @@ class StadiumColors {
   static const navy = Color(0xFF0B1F33);
   static const navyMid = Color(0xFF132F4C);
 
-  // Brand mark / DSS logo (warm LED amber, stronger than mint alone)
+  // Brand mark / ArenaBoard logo (warm LED amber)
   static const brand = Color(0xFFFFB020);
 
   // Action / Team A

@@ -31,7 +31,7 @@ class SimulationScoreboardConnection implements ScoreboardConnection {
     await Future<void>.delayed(const Duration(milliseconds: 100));
     return const [
       BtDevice(
-        name: 'DSS-ESP32-SIM',
+        name: 'ArenaBoard SIM',
         address: '00:00:00:00:00:00',
       ),
     ];
