@@ -1,3 +1,5 @@
+import 'bt_device.dart';
+
 enum ConnectionMode { disconnected, scanning, connecting, connected, simulation }
 
 class ConnectionStatus {
@@ -6,6 +8,7 @@ class ConnectionStatus {
   final String? deviceAddress;
   final int? batteryPercent;
   final String? lastError;
+  final List<BtDevice> discoveredDevices;
 
   const ConnectionStatus({
     required this.mode,
@@ -13,6 +16,7 @@ class ConnectionStatus {
     this.deviceAddress,
     this.batteryPercent,
     this.lastError,
+    this.discoveredDevices = const [],
   });
 
   bool get isLive =>
@@ -24,7 +28,9 @@ class ConnectionStatus {
     String? deviceAddress,
     int? batteryPercent,
     String? lastError,
+    List<BtDevice>? discoveredDevices,
     bool clearError = false,
+    bool clearDevices = false,
   }) {
     return ConnectionStatus(
       mode: mode ?? this.mode,
@@ -32,6 +38,8 @@ class ConnectionStatus {
       deviceAddress: deviceAddress ?? this.deviceAddress,
       batteryPercent: batteryPercent ?? this.batteryPercent,
       lastError: clearError ? null : (lastError ?? this.lastError),
+      discoveredDevices:
+          clearDevices ? const [] : (discoveredDevices ?? this.discoveredDevices),
     );
   }
 }

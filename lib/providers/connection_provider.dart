@@ -74,15 +74,20 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
 
   Future<void> startScan() async {
     connectionLost = false;
+    _useSimulation = false;
     state = state.copyWith(
       mode: ConnectionMode.scanning,
       clearError: true,
+      clearDevices: true,
     );
 
     try {
-      await connection.scan();
+      final devices = await connection.scan();
       if (state.mode == ConnectionMode.scanning) {
-        state = state.copyWith(mode: ConnectionMode.disconnected);
+        state = state.copyWith(
+          mode: ConnectionMode.disconnected,
+          discoveredDevices: devices,
+        );
       }
     } catch (error) {
       state = state.copyWith(
@@ -90,6 +95,16 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
         lastError: error.toString(),
       );
     }
+  }
+
+  Future<bool> isBluetoothEnabled() {
+    final bluetooth = ref.read(_connectionInstancesProvider).bluetooth;
+    return bluetooth.isBluetoothEnabled();
+  }
+
+  Future<bool> requestEnableBluetooth() {
+    final bluetooth = ref.read(_connectionInstancesProvider).bluetooth;
+    return bluetooth.requestEnableBluetooth();
   }
 
   Future<void> connectDevice(BtDevice device) async {

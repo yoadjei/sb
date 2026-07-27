@@ -35,6 +35,10 @@ class BluetoothScoreboardConnection implements ScoreboardConnection {
     return _service.discover(timeout: timeout);
   }
 
+  Future<bool> isBluetoothEnabled() => _service.isEnabled;
+
+  Future<bool> requestEnableBluetooth() => _service.requestEnable();
+
   @override
   Future<void> connect({BtDevice? device}) async {
     if (device == null) {
