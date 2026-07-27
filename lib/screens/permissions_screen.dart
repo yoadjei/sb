@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -9,6 +8,14 @@ import '../themes/colors.dart';
 import 'bluetooth_scan_screen.dart';
 
 enum _PermissionPhase { idle, requesting, granted, denied, permanentlyDenied }
+
+/// Classic Bluetooth permission flow is Android-only.
+/// On web/desktop we skip grants and send users to Simulation Mode.
+bool get _needsBluetoothPermissions {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
+}
 
 class PermissionsScreen extends StatefulWidget {
   const PermissionsScreen({super.key});
@@ -24,17 +31,18 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkExisting());
-  }
-
-  Future<void> _checkExisting() async {
-    if (await _hasRequiredPermissions()) {
-      setState(() => _phase = _PermissionPhase.granted);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_needsBluetoothPermissions) {
+        // Web/desktop preview: Classic BT permissions are unavailable.
+        setState(() => _phase = _PermissionPhase.granted);
+        return;
+      }
+      _checkExisting();
+    });
   }
 
   Future<List<Permission>> _requiredPermissions() async {
-    if (Platform.isAndroid) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       return [
         Permission.bluetoothScan,
         Permission.bluetoothConnect,
@@ -55,7 +63,23 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     return true;
   }
 
+  Future<void> _checkExisting() async {
+    try {
+      if (await _hasRequiredPermissions()) {
+        if (!mounted) return;
+        setState(() => _phase = _PermissionPhase.granted);
+      }
+    } catch (_) {
+      // Ignore — user can request manually.
+    }
+  }
+
   Future<void> _requestPermissions() async {
+    if (!_needsBluetoothPermissions) {
+      _continue();
+      return;
+    }
+
     setState(() {
       _phase = _PermissionPhase.requesting;
       _errorMessage = null;
@@ -109,8 +133,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktopPreview = !_needsBluetoothPermissions;
     final isRequesting = _phase == _PermissionPhase.requesting;
-    final canContinue = _phase == _PermissionPhase.granted;
+    final canContinue = _phase == _PermissionPhase.granted || isDesktopPreview;
 
     return Scaffold(
       body: Container(
@@ -129,7 +154,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               children: [
                 const SizedBox(height: 12),
                 Text(
-                  'Connect Your Scoreboard',
+                  isDesktopPreview
+                      ? 'Preview Mode'
+                      : 'Connect Your Scoreboard',
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
@@ -138,7 +165,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'We need a few permissions so the app can discover and control your ESP32 scoreboard over Bluetooth Classic.',
+                  isDesktopPreview
+                      ? 'Bluetooth Classic only works on an Android device. Continue to the scan screen and use Simulation Mode to explore the full app here.'
+                      : 'We need a few permissions so the app can discover and control your ESP32 scoreboard over Bluetooth Classic.',
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 15,
                     color: Colors.white70,
@@ -146,20 +175,36 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _PermissionTile(
-                  icon: Icons.bluetooth_searching_rounded,
-                  title: 'Bluetooth',
-                  subtitle:
-                      'Scan for paired and nearby scoreboard modules (HC-05 / SPP).',
-                ),
-                const SizedBox(height: 14),
-                _PermissionTile(
-                  icon: Icons.location_on_outlined,
-                  title: 'Location',
-                  subtitle:
-                      'Android requires location access for Bluetooth device discovery. We do not track your position.',
-                ),
-                if (_errorMessage != null) ...[
+                if (isDesktopPreview) ...[
+                  _PermissionTile(
+                    icon: Icons.science_outlined,
+                    title: 'Simulation Mode',
+                    subtitle:
+                        'Demo scores, music, timer, and history without an ESP32. Perfect for browser and desktop previews.',
+                  ),
+                  const SizedBox(height: 14),
+                  _PermissionTile(
+                    icon: Icons.phone_android_rounded,
+                    title: 'Real Bluetooth',
+                    subtitle:
+                        'Install the Android APK on a phone to connect to your HC-05 / ESP32 scoreboard.',
+                  ),
+                ] else ...[
+                  _PermissionTile(
+                    icon: Icons.bluetooth_searching_rounded,
+                    title: 'Bluetooth',
+                    subtitle:
+                        'Scan for paired and nearby scoreboard modules (HC-05 / SPP).',
+                  ),
+                  const SizedBox(height: 14),
+                  _PermissionTile(
+                    icon: Icons.location_on_outlined,
+                    title: 'Location',
+                    subtitle:
+                        'Android requires location access for Bluetooth device discovery. We do not track your position.',
+                  ),
+                ],
+                if (_errorMessage != null && !isDesktopPreview) ...[
                   const SizedBox(height: 24),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -194,24 +239,28 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                   ),
                 ],
                 const Spacer(),
-                if (_phase == _PermissionPhase.permanentlyDenied)
+                if (_phase == _PermissionPhase.permanentlyDenied &&
+                    !isDesktopPreview)
                   OutlinedButton.icon(
                     onPressed: openAppSettings,
                     icon: const Icon(Icons.settings_outlined),
                     label: Text(
                       'Open Settings',
-                      style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w600),
+                      style:
+                          GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w600),
                     ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                      side:
+                          BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                   ),
-                if (_phase == _PermissionPhase.permanentlyDenied)
+                if (_phase == _PermissionPhase.permanentlyDenied &&
+                    !isDesktopPreview)
                   const SizedBox(height: 12),
                 FilledButton(
                   onPressed: isRequesting
@@ -239,14 +288,18 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                           ),
                         )
                       : Text(
-                          canContinue ? 'Continue' : 'Grant Permissions',
+                          isDesktopPreview
+                              ? 'Continue to Simulation'
+                              : (canContinue
+                                  ? 'Continue'
+                                  : 'Grant Permissions'),
                           style: GoogleFonts.spaceGrotesk(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                 ),
-                if (!canContinue) ...[
+                if (!canContinue && !isDesktopPreview) ...[
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: isRequesting ? null : _requestPermissions,
