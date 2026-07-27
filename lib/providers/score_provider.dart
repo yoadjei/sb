@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -125,6 +126,20 @@ class ScoreNotifier extends Notifier<ScoreState> {
       clearError: true,
     );
     await _send(ScoreboardCommands.nameB(trimmed));
+  }
+
+  void setColorA(Color color) {
+    state = state.copyWith(
+      teamA: state.teamA.copyWith(color: color),
+      clearError: true,
+    );
+  }
+
+  void setColorB(Color color) {
+    state = state.copyWith(
+      teamB: state.teamB.copyWith(color: color),
+      clearError: true,
+    );
   }
 
   Future<void> startMatch() async {
