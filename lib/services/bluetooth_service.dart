@@ -30,13 +30,44 @@ class BluetoothService {
     return enabled;
   }
 
+  /// Shows the system Bluetooth enable dialog when possible.
   Future<bool> requestEnable() async {
-    final result = await _serial.requestEnable();
-    if (result == null) {
-      throw BluetoothException('Failed to enable Bluetooth');
+    try {
+      final alreadyOn = await isEnabled;
+      if (alreadyOn) return true;
+    } catch (_) {
+      // Continue to request enable even if state read fails.
     }
-    return result;
+
+    try {
+      final result = await _serial.requestEnable();
+      if (result == true) return true;
+    } catch (error) {
+      throw BluetoothException(
+        'Could not show Bluetooth enable prompt: $error',
+      );
+    }
+
+    // Re-check after dialog (user may have accepted).
+    try {
+      if (await isEnabled) return true;
+    } catch (_) {}
+
+    return false;
   }
+
+  /// Opens system Bluetooth settings as a fallback when the prompt is denied.
+  Future<void> openBluetoothSettings() async {
+    try {
+      await _serial.openSettings();
+    } catch (error) {
+      throw BluetoothException(
+        'Could not open Bluetooth settings: $error',
+      );
+    }
+  }
+
+  Stream<BluetoothState> get onStateChanged => _serial.onStateChanged();
 
   Future<List<BtDevice>> discover({
     Duration timeout = const Duration(seconds: 5),

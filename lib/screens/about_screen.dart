@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../themes/colors.dart';
 import '../themes/stadium_style.dart';
 import '../utils/app_brand.dart';
+import '../widgets/arena_board_logo.dart';
 import '../widgets/stadium_scaffold.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -22,40 +23,7 @@ class AboutScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
         child: Column(
           children: [
-            Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    StadiumColors.brand,
-                    StadiumColors.brand.withValues(alpha: 0.75),
-                    StadiumColors.accent.withValues(alpha: 0.9),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: StadiumColors.brand.withValues(alpha: 0.28),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  AppBrand.mark,
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: StadiumColors.navy,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-            ),
+            const ArenaBoardLogo(size: 104),
             const SizedBox(height: 24),
             Text(
               AppBrand.name,

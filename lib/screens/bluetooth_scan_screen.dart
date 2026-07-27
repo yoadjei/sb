@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../animations/fade_page_route.dart';
 import '../models/bt_device.dart';
@@ -12,6 +15,11 @@ import '../themes/colors.dart';
 import '../themes/stadium_style.dart';
 import '../widgets/device_card.dart';
 import 'dashboard_screen.dart';
+
+bool get _supportsClassicBluetooth {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.android;
+}
 
 class BluetoothScanScreen extends ConsumerStatefulWidget {
   const BluetoothScanScreen({super.key});
@@ -24,8 +32,11 @@ class BluetoothScanScreen extends ConsumerStatefulWidget {
 class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _searchController;
+  StreamSubscription<dynamic>? _btStateSub;
   bool _bluetoothOff = false;
   bool _checkingBluetooth = true;
+  bool _enablingBluetooth = false;
+  bool _promptedEnable = false;
   String? _connectedAddress;
   bool _navigating = false;
 
@@ -40,14 +51,71 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
   }
 
+  @override
+  void dispose() {
+    _btStateSub?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _initialize() async {
+    if (!_supportsClassicBluetooth) {
+      if (!mounted) return;
+      setState(() {
+        _bluetoothOff = false;
+        _checkingBluetooth = false;
+      });
+      return;
+    }
+
+    await _ensureBluetoothPermissions();
+    _listenBluetoothState();
     await _refreshBluetoothState();
-    if (!_bluetoothOff && mounted) {
+    if (!mounted) return;
+
+    if (_bluetoothOff && !_promptedEnable) {
+      _promptedEnable = true;
+      await _enableBluetooth(auto: true);
+    } else if (!_bluetoothOff) {
       await _startScan();
     }
   }
 
+  void _listenBluetoothState() {
+    try {
+      _btStateSub = ref
+          .read(connectionProvider.notifier)
+          .listenBluetoothAdapterState(() async {
+        await _refreshBluetoothState();
+        if (!_bluetoothOff && mounted) {
+          await _startScan();
+        }
+      });
+    } catch (_) {
+      // Adapter state stream unavailable on this platform.
+    }
+  }
+
+  Future<void> _ensureBluetoothPermissions() async {
+    if (!_supportsClassicBluetooth) return;
+    await [
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
+      Permission.locationWhenInUse,
+    ].request();
+  }
+
   Future<void> _refreshBluetoothState() async {
+    if (!_supportsClassicBluetooth) {
+      if (!mounted) return;
+      setState(() {
+        _bluetoothOff = false;
+        _checkingBluetooth = false;
+      });
+      return;
+    }
+
     setState(() => _checkingBluetooth = true);
     try {
       final enabled =
@@ -66,19 +134,51 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
     }
   }
 
-  Future<void> _enableBluetooth() async {
+  Future<void> _enableBluetooth({bool auto = false}) async {
+    if (!_supportsClassicBluetooth) {
+      _showSnack(
+        'Bluetooth Classic works on Android devices. Use Simulation Mode here.',
+      );
+      return;
+    }
+    if (_enablingBluetooth) return;
+
+    setState(() => _enablingBluetooth = true);
     try {
+      await _ensureBluetoothPermissions();
       final enabled =
           await ref.read(connectionProvider.notifier).requestEnableBluetooth();
       if (!mounted) return;
-      setState(() => _bluetoothOff = !enabled);
+
       if (enabled) {
+        setState(() => _bluetoothOff = false);
         await _startScan();
+        return;
+      }
+
+      // User denied the system dialog or prompt unavailable: open BT settings.
+      if (!auto) {
+        _showSnack('Opening Bluetooth settings so you can turn it on.');
+        await ref.read(connectionProvider.notifier).openBluetoothSettings();
+        await Future<void>.delayed(const Duration(milliseconds: 600));
+        await _refreshBluetoothState();
+        if (!_bluetoothOff && mounted) {
+          await _startScan();
+        }
       } else {
-        _showSnack('Bluetooth is still off. Enable it in system settings.');
+        setState(() => _bluetoothOff = true);
       }
     } catch (error) {
-      _showSnack('Could not enable Bluetooth: $error');
+      if (!mounted) return;
+      final message = error.toString().replaceFirst('Exception: ', '');
+      _showSnack(message);
+      try {
+        await ref.read(connectionProvider.notifier).openBluetoothSettings();
+      } catch (_) {}
+    } finally {
+      if (mounted) {
+        setState(() => _enablingBluetooth = false);
+      }
     }
   }
 
@@ -518,10 +618,20 @@ class _BluetoothOffState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: StadiumColors.accent,
                 foregroundColor: StadiumColors.navy,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'This opens the system prompt to enable Bluetooth on your phone.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 12,
+                color: style.muted,
               ),
             ),
           ],

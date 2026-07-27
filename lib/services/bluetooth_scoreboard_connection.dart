@@ -39,6 +39,10 @@ class BluetoothScoreboardConnection implements ScoreboardConnection {
 
   Future<bool> requestEnableBluetooth() => _service.requestEnable();
 
+  Future<void> openBluetoothSettings() => _service.openBluetoothSettings();
+
+  Stream<dynamic> get onBluetoothStateChanged => _service.onStateChanged;
+
   @override
   Future<void> connect({BtDevice? device}) async {
     if (device == null) {

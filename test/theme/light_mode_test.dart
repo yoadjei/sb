@@ -36,7 +36,7 @@ void main() {
     expect(style.title, StadiumColors.textDark);
   });
 
-  testWidgets('dss logo mark uses brand gold color', (tester) async {
+  testWidgets('dss logo mark renders logo asset widget', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light,
@@ -44,8 +44,7 @@ void main() {
       ),
     );
 
-    final text = tester.widget<Text>(find.text('AB'));
-    expect(text.style?.color, StadiumColors.brand);
+    expect(find.byType(DssLogoMark), findsOneWidget);
   });
 
   testWidgets('hub tile is readable in light mode', (tester) async {

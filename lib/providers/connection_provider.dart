@@ -107,6 +107,19 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
     return bluetooth.requestEnableBluetooth();
   }
 
+  Future<void> openBluetoothSettings() {
+    final bluetooth = ref.read(_connectionInstancesProvider).bluetooth;
+    return bluetooth.openBluetoothSettings();
+  }
+
+  /// Listen for adapter on/off changes (Android).
+  StreamSubscription<dynamic> listenBluetoothAdapterState(
+    void Function() onChanged,
+  ) {
+    final bluetooth = ref.read(_connectionInstancesProvider).bluetooth;
+    return bluetooth.onBluetoothStateChanged.listen((_) => onChanged());
+  }
+
   Future<void> connectDevice(BtDevice device) async {
     _useSimulation = false;
     _lastDevice = device;

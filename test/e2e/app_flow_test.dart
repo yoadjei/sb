@@ -61,7 +61,6 @@ void main() {
     await pumpApp(tester);
     await tester.pump();
 
-    expect(find.text('AB'), findsWidgets);
     expect(find.text('ArenaBoard'), findsOneWidget);
 
     await advanceSplash(tester);
@@ -78,7 +77,7 @@ void main() {
     await advanceSplash(tester);
     await enterSimulation(tester);
 
-    expect(find.text('AB'), findsWidgets);
+    expect(find.text('ArenaBoard'), findsWidgets);
     expect(find.text('Start Match'), findsOneWidget);
     expect(find.text('Score'), findsOneWidget);
     expect(find.text('Music'), findsOneWidget);

@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../animations/fade_page_route.dart';
 import '../themes/colors.dart';
 import '../utils/app_brand.dart';
+import '../widgets/arena_board_logo.dart';
 import 'permissions_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 900),
     )..forward();
 
-    _navTimer = Timer(const Duration(milliseconds: 2400), _goToPermissions);
+    _navTimer = Timer(const Duration(milliseconds: 2200), _goToPermissions);
   }
 
   void _goToPermissions() {
@@ -104,40 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 child: child,
                               );
                             },
-                            child: Container(
-                              width: 88,
-                              height: 88,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    StadiumColors.brand,
-                                    StadiumColors.brand.withValues(alpha: 0.75),
-                                    StadiumColors.accent.withValues(alpha: 0.85),
-                                  ],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: StadiumColors.brand
-                                        .withValues(alpha: 0.35),
-                                    blurRadius: 28,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                AppBrand.mark,
-                                style: GoogleFonts.spaceGrotesk(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.5,
-                                  color: StadiumColors.navy,
-                                ),
-                              ),
-                            ),
+                            child: const ArenaBoardLogo(size: 112),
                           ),
                           const SizedBox(height: 28),
                           Text(
@@ -160,15 +128,7 @@ class _SplashScreenState extends State<SplashScreen>
                               color: Colors.white.withValues(alpha: 0.68),
                             ),
                           ),
-                          const SizedBox(height: 36),
-                          SizedBox(
-                            width: 220,
-                            height: 110,
-                            child: CustomPaint(
-                              painter: _ScoreboardGraphicPainter(),
-                            ),
-                          ),
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 48),
                           SizedBox(
                             width: 26,
                             height: 26,
@@ -189,99 +149,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
-}
-
-class _ScoreboardGraphicPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final frameRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      const Radius.circular(16),
-    );
-
-    canvas.drawRRect(
-      frameRect,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: 0.12),
-            Colors.white.withValues(alpha: 0.03),
-          ],
-        ).createShader(frameRect.outerRect),
-    );
-
-    canvas.drawRRect(
-      frameRect,
-      Paint()
-        ..color = StadiumColors.brand.withValues(alpha: 0.55)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.4,
-    );
-
-    final displayRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(14, 14, size.width - 28, size.height - 28),
-      const Radius.circular(10),
-    );
-    canvas.drawRRect(displayRect, Paint()..color = const Color(0xFF061018));
-
-    _drawScore(canvas, 44, 38, '12', StadiumColors.accent);
-    _drawScore(canvas, size.width - 44, 38, '09', StadiumColors.rival);
-
-    final vsPaint = TextPainter(
-      text: TextSpan(
-        text: 'VS',
-        style: GoogleFonts.spaceGrotesk(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: Colors.white38,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    vsPaint.paint(
-      canvas,
-      Offset((size.width - vsPaint.width) / 2, 30),
-    );
-
-    _drawTeamLabel(canvas, 44, 72, 'HOME');
-    _drawTeamLabel(canvas, size.width - 44, 72, 'AWAY');
-  }
-
-  void _drawScore(Canvas canvas, double x, double y, String score, Color color) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: score,
-        style: GoogleFonts.robotoMono(
-          fontSize: 32,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas, Offset(x - tp.width / 2, y));
-  }
-
-  void _drawTeamLabel(Canvas canvas, double x, double y, String label) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: label,
-        style: GoogleFonts.spaceGrotesk(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1.1,
-          color: Colors.white38,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas, Offset(x - tp.width / 2, y));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _StadiumAtmospherePainter extends CustomPainter {
