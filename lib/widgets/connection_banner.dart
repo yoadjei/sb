@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/connection_status.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
 class ConnectionBanner extends StatelessWidget {
   const ConnectionBanner({
@@ -14,7 +15,8 @@ class ConnectionBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, icon, color) = _resolve(status);
+    final style = StadiumStyle.of(context);
+    final (label, icon, color) = _resolve(status, style);
 
     return Container(
       width: double.infinity,
@@ -34,7 +36,7 @@ class ConnectionBanner extends StatelessWidget {
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: style.title,
               ),
             ),
           ),
@@ -43,7 +45,7 @@ class ConnectionBanner extends StatelessWidget {
               '${status.batteryPercent}%',
               style: GoogleFonts.robotoMono(
                 fontSize: 12,
-                color: Colors.white70,
+                color: style.body,
               ),
             ),
         ],
@@ -51,13 +53,17 @@ class ConnectionBanner extends StatelessWidget {
     );
   }
 
-  (String, IconData, Color) _resolve(ConnectionStatus status) {
+  (String, IconData, Color) _resolve(ConnectionStatus status, StadiumStyle style) {
     switch (status.mode) {
       case ConnectionMode.connected:
         final name = status.deviceName ?? 'Scoreboard';
         return ('Connected · $name', Icons.bluetooth_connected_rounded, StadiumColors.accent);
       case ConnectionMode.simulation:
-        return ('Simulation Mode — demo without hardware', Icons.smart_toy_outlined, StadiumColors.accent);
+        return (
+          'Simulation Mode: demo without hardware',
+          Icons.smart_toy_outlined,
+          StadiumColors.accent,
+        );
       case ConnectionMode.connecting:
         return ('Connecting…', Icons.bluetooth_searching_rounded, Colors.amber);
       case ConnectionMode.scanning:
@@ -66,7 +72,7 @@ class ConnectionBanner extends StatelessWidget {
         if (status.lastError != null) {
           return (status.lastError!, Icons.error_outline_rounded, StadiumColors.rival);
         }
-        return ('Not connected', Icons.bluetooth_disabled_rounded, Colors.white54);
+        return ('Not connected', Icons.bluetooth_disabled_rounded, style.muted);
     }
   }
 }

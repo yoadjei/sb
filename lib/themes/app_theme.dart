@@ -12,7 +12,7 @@ class AppTheme {
         seedColor: StadiumColors.accent,
         brightness: Brightness.light,
         primary: StadiumColors.accent,
-        secondary: StadiumColors.rival,
+        secondary: StadiumColors.brand,
         surface: StadiumColors.surfaceLight,
         onSurface: StadiumColors.textDark,
       ),
@@ -43,6 +43,12 @@ class AppTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: _segmentedButtonStyle(
+          unselectedForeground: StadiumColors.textMutedLight,
+          unselectedBackground: StadiumColors.textDark.withValues(alpha: 0.05),
+        ),
+      ),
       extensions: const [
         ScoreDisplayTheme(
           scoreStyle: TextStyle(
@@ -64,7 +70,7 @@ class AppTheme {
         seedColor: StadiumColors.accent,
         brightness: Brightness.dark,
         primary: StadiumColors.accent,
-        secondary: StadiumColors.rival,
+        secondary: StadiumColors.brand,
         surface: StadiumColors.navyMid,
         onSurface: Colors.white,
       ),
@@ -95,6 +101,12 @@ class AppTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: _segmentedButtonStyle(
+          unselectedForeground: Colors.white70,
+          unselectedBackground: Colors.white.withValues(alpha: 0.06),
+        ),
+      ),
       extensions: const [
         ScoreDisplayTheme(
           scoreStyle: TextStyle(
@@ -106,6 +118,26 @@ class AppTheme {
           ),
         ),
       ],
+    );
+  }
+
+  static ButtonStyle _segmentedButtonStyle({
+    required Color unselectedForeground,
+    required Color unselectedBackground,
+  }) {
+    return ButtonStyle(
+      foregroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return StadiumColors.navy;
+        }
+        return unselectedForeground;
+      }),
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return StadiumColors.accent;
+        }
+        return unselectedBackground;
+      }),
     );
   }
 

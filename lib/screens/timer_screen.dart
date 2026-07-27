@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../providers/timer_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../utils/formatters.dart';
 import '../widgets/stadium_scaffold.dart';
 
@@ -45,11 +46,13 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
       });
     }
 
+    final style = StadiumStyle.of(context);
+
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Match Timer'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -76,18 +79,22 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
                 controller: _countdownController,
                 enabled: !timer.running,
                 style: GoogleFonts.robotoMono(
-                  color: Colors.white,
+                  color: style.title,
                   fontSize: 18,
                 ),
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   labelText: 'Countdown target (mm:ss)',
-                  labelStyle: GoogleFonts.spaceGrotesk(color: Colors.white54),
+                  labelStyle: GoogleFonts.spaceGrotesk(color: style.muted),
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.06),
+                  fillColor: style.card,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+                    borderSide: BorderSide(color: style.cardBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: style.cardBorder),
                   ),
                 ),
                 onSubmitted: (value) {
@@ -103,11 +110,11 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
               padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                color: Colors.white.withValues(alpha: 0.04),
+                color: style.card,
                 border: Border.all(
                   color: timer.running
                       ? StadiumColors.accent.withValues(alpha: 0.4)
-                      : Colors.white12,
+                      : style.cardBorder,
                 ),
                 boxShadow: timer.running
                     ? [
@@ -146,7 +153,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
-                color: Colors.white54,
+                color: style.muted,
               ),
             ),
             const SizedBox(height: 32),
@@ -159,7 +166,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
                   _TimerAction(
                     label: 'Pause',
                     icon: Icons.pause_rounded,
-                    color: Colors.white70,
+                    color: style.body,
                     onPressed: () {
                       HapticFeedback.mediumImpact();
                       notifier.pause();
@@ -235,6 +242,7 @@ class _ModeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return SegmentedButton<TimerMode>(
       segments: const [
         ButtonSegment(
@@ -261,13 +269,13 @@ class _ModeSelector extends StatelessWidget {
           if (states.contains(WidgetState.selected)) {
             return StadiumColors.navy;
           }
-          return Colors.white70;
+          return style.body;
         }),
         backgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return StadiumColors.accent;
           }
-          return Colors.white.withValues(alpha: 0.06);
+          return style.chipBackground;
         }),
       ),
     );

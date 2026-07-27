@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
 class NowPlayingCard extends StatelessWidget {
   const NowPlayingCard({
@@ -17,6 +18,7 @@ class NowPlayingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final displayTitle = title?.trim().isNotEmpty == true ? title! : 'Nothing playing';
 
     return Container(
@@ -24,8 +26,8 @@ class NowPlayingCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withValues(alpha: 0.04),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        color: style.card,
+        border: Border.all(color: style.cardBorder),
       ),
       child: Row(
         children: [
@@ -34,18 +36,21 @@ class NowPlayingCard extends StatelessWidget {
             height: 52,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  StadiumColors.accent.withValues(alpha: 0.25),
-                  StadiumColors.navyMid,
-                ],
-              ),
+              color: style.iconWell,
+              gradient: style.isDark
+                  ? LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        StadiumColors.accent.withValues(alpha: 0.25),
+                        StadiumColors.navyMid,
+                      ],
+                    )
+                  : null,
             ),
             child: Icon(
               playing ? Icons.graphic_eq_rounded : Icons.music_note_rounded,
-              color: playing ? StadiumColors.accent : Colors.white54,
+              color: playing ? StadiumColors.accent : style.muted,
               size: 28,
             ),
           ),
@@ -60,7 +65,7 @@ class NowPlayingCard extends StatelessWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.6,
-                    color: Colors.white54,
+                    color: style.muted,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -71,7 +76,7 @@ class NowPlayingCard extends StatelessWidget {
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: style.title,
                   ),
                 ),
               ],

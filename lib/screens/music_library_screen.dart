@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/music_track.dart';
 import '../providers/music_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/stadium_scaffold.dart';
 
 class MusicLibraryScreen extends ConsumerWidget {
@@ -30,11 +31,13 @@ class MusicLibraryScreen extends ConsumerWidget {
       });
     });
 
+    final style = StadiumStyle.of(context);
+
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Music Library'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -70,10 +73,11 @@ class _TrackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Material(
       color: isPlaying
           ? StadiumColors.accent.withValues(alpha: 0.12)
-          : Colors.white.withValues(alpha: 0.04),
+          : style.card,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -85,7 +89,7 @@ class _TrackCard extends StatelessWidget {
             border: Border.all(
               color: isPlaying
                   ? StadiumColors.accent.withValues(alpha: 0.4)
-                  : Colors.white.withValues(alpha: 0.08),
+                  : style.cardBorder,
             ),
           ),
           child: Row(
@@ -95,12 +99,15 @@ class _TrackCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    colors: [
-                      StadiumColors.accent.withValues(alpha: 0.25),
-                      StadiumColors.navyMid,
-                    ],
-                  ),
+                  color: style.iconWell,
+                  gradient: style.isDark
+                      ? LinearGradient(
+                          colors: [
+                            StadiumColors.accent.withValues(alpha: 0.25),
+                            StadiumColors.navyMid,
+                          ],
+                        )
+                      : null,
                 ),
                 child: Center(
                   child: Text(
@@ -123,7 +130,7 @@ class _TrackCard extends StatelessWidget {
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: style.title,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -131,7 +138,7 @@ class _TrackCard extends StatelessWidget {
                       'Track ${track.number}',
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 12,
-                        color: Colors.white54,
+                        color: style.muted,
                       ),
                     ),
                   ],
@@ -139,7 +146,7 @@ class _TrackCard extends StatelessWidget {
               ),
               Icon(
                 isPlaying ? Icons.equalizer_rounded : Icons.play_circle_fill_rounded,
-                color: isPlaying ? StadiumColors.accent : Colors.white54,
+                color: isPlaying ? StadiumColors.accent : style.muted,
                 size: 32,
               ),
             ],

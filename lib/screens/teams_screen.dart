@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../providers/score_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/stadium_scaffold.dart';
 
 class TeamsScreen extends ConsumerStatefulWidget {
@@ -55,11 +56,13 @@ class _TeamsScreenState extends ConsumerState<TeamsScreen> {
       });
     });
 
+    final style = StadiumStyle.of(context);
+
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Teams'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -142,13 +145,14 @@ class _TeamEditorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final accent = color;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withValues(alpha: 0.04),
+        color: style.card,
         border: Border.all(color: accent.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -160,7 +164,7 @@ class _TeamEditorCard extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.6,
-              color: Colors.white54,
+              color: style.muted,
             ),
           ),
           const SizedBox(height: 16),
@@ -170,14 +174,17 @@ class _TeamEditorCard extends StatelessWidget {
               height: 88,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    accent.withValues(alpha: 0.35),
-                    StadiumColors.navyMid,
-                  ],
-                ),
+                color: style.iconWell,
+                gradient: style.isDark
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          accent.withValues(alpha: 0.35),
+                          StadiumColors.navyMid,
+                        ],
+                      )
+                    : null,
                 border: Border.all(color: accent.withValues(alpha: 0.5)),
               ),
               child: Column(
@@ -191,7 +198,7 @@ class _TeamEditorCard extends StatelessWidget {
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.2,
-                      color: Colors.white38,
+                      color: style.muted,
                     ),
                   ),
                 ],
@@ -202,18 +209,22 @@ class _TeamEditorCard extends StatelessWidget {
           TextField(
             controller: nameController,
             style: GoogleFonts.spaceGrotesk(
-              color: Colors.white,
+              color: style.title,
               fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
             decoration: InputDecoration(
               labelText: 'Team name',
-              labelStyle: GoogleFonts.spaceGrotesk(color: Colors.white54),
+              labelStyle: GoogleFonts.spaceGrotesk(color: style.muted),
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.06),
+              fillColor: style.chipBackground,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(color: style.cardBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: style.cardBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -228,7 +239,7 @@ class _TeamEditorCard extends StatelessWidget {
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.4,
-              color: Colors.white54,
+              color: style.muted,
             ),
           ),
           const SizedBox(height: 8),

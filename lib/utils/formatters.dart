@@ -34,7 +34,7 @@ class Formatters {
       _ => record.winner,
     };
 
-    return '${record.teamAName} ${record.scoreA} – ${record.scoreB} ${record.teamBName}\n'
+    return '${record.teamAName} ${record.scoreA} to ${record.scoreB} ${record.teamBName}\n'
         'Winner: $winnerLabel\n'
         'Duration: ${formatDuration(Duration(seconds: record.durationSeconds))}\n'
         'Played: ${formatDate(record.playedAt)}';

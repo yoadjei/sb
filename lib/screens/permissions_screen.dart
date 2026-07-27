@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../animations/fade_page_route.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import 'bluetooth_scan_screen.dart';
 
 enum _PermissionPhase { idle, requesting, granted, denied, permanentlyDenied }
@@ -137,13 +138,15 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     final isRequesting = _phase == _PermissionPhase.requesting;
     final canContinue = _phase == _PermissionPhase.granted || isDesktopPreview;
 
+    final style = StadiumStyle.of(context);
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [StadiumColors.navy, StadiumColors.navyMid],
+            colors: style.scaffoldGradient,
           ),
         ),
         child: SafeArea(
@@ -160,7 +163,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: style.title,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -170,7 +173,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       : 'We need a few permissions so the app can discover and control your ESP32 scoreboard over Bluetooth Classic.',
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 15,
-                    color: Colors.white70,
+                    color: style.body,
                     height: 1.45,
                   ),
                 ),
@@ -187,14 +190,14 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                     icon: Icons.phone_android_rounded,
                     title: 'Real Bluetooth',
                     subtitle:
-                        'Install the Android APK on a phone to connect to your HC-05 / ESP32 scoreboard.',
+                        'Install the Android APK on a phone to connect to your HC05 or ESP32 scoreboard.',
                   ),
                 ] else ...[
                   _PermissionTile(
                     icon: Icons.bluetooth_searching_rounded,
                     title: 'Bluetooth',
                     subtitle:
-                        'Scan for paired and nearby scoreboard modules (HC-05 / SPP).',
+                        'Scan for paired and nearby scoreboard modules (HC05 or SPP).',
                   ),
                   const SizedBox(height: 14),
                   _PermissionTile(
@@ -229,7 +232,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                             _errorMessage!,
                             style: GoogleFonts.spaceGrotesk(
                               fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.92),
+                              color: style.body,
                               height: 1.4,
                             ),
                           ),
@@ -250,9 +253,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                           GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w600),
                     ),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side:
-                          BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                      foregroundColor: style.title,
+                      side: BorderSide(color: style.cardBorder),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -334,12 +336,13 @@ class _PermissionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: style.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: style.cardBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,7 +351,7 @@ class _PermissionTile extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: StadiumColors.accent.withValues(alpha: 0.12),
+              color: style.iconWell,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: StadiumColors.accent, size: 24),
@@ -363,7 +366,7 @@ class _PermissionTile extends StatelessWidget {
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: style.title,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -371,7 +374,7 @@ class _PermissionTile extends StatelessWidget {
                   subtitle,
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 13,
-                    color: Colors.white60,
+                    color: style.muted,
                     height: 1.4,
                   ),
                 ),

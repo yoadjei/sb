@@ -10,6 +10,7 @@ import '../providers/history_provider.dart';
 import '../providers/score_provider.dart';
 import '../providers/settings_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/stadium_scaffold.dart';
 import 'about_screen.dart';
 import 'bluetooth_scan_screen.dart';
@@ -23,11 +24,13 @@ class SettingsScreen extends ConsumerWidget {
     final connection = ref.watch(connectionProvider);
     final notifier = ref.read(settingsProvider.notifier);
 
+    final style = StadiumStyle.of(context);
+
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Settings'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -143,18 +146,20 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _confirmResetAppData(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: StadiumColors.navyMid,
+      builder: (context) {
+        final dialogStyle = StadiumStyle.of(context);
+        return AlertDialog(
+        backgroundColor: dialogStyle.isDark ? StadiumColors.navyMid : dialogStyle.card,
         title: Text(
           'Reset App Data?',
           style: GoogleFonts.spaceGrotesk(
-            color: Colors.white,
+            color: dialogStyle.title,
             fontWeight: FontWeight.w700,
           ),
         ),
         content: Text(
           'This clears all settings, match history, and resets scores to defaults. This cannot be undone.',
-          style: GoogleFonts.spaceGrotesk(color: Colors.white70),
+          style: GoogleFonts.spaceGrotesk(color: dialogStyle.body),
         ),
         actions: [
           TextButton(
@@ -170,7 +175,8 @@ class SettingsScreen extends ConsumerWidget {
             child: const Text('Reset'),
           ),
         ],
-      ),
+      );
+      },
     );
 
     if (confirmed != true) return;
@@ -208,6 +214,7 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, top: 4),
       child: Text(
@@ -216,7 +223,7 @@ class _SectionHeader extends StatelessWidget {
           fontSize: 11,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.4,
-          color: Colors.white54,
+          color: style.muted,
         ),
       ),
     );
@@ -234,6 +241,7 @@ class _ThemeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: SegmentedButton<ThemePreference>(
@@ -261,13 +269,13 @@ class _ThemeSelector extends StatelessWidget {
             if (states.contains(WidgetState.selected)) {
               return StadiumColors.navy;
             }
-            return Colors.white70;
+            return style.body;
           }),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return StadiumColors.accent;
             }
-            return Colors.white.withValues(alpha: 0.06);
+            return style.chipBackground;
           }),
         ),
       ),
@@ -290,25 +298,27 @@ class _SwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withValues(alpha: 0.04),
+        color: style.card,
+        border: Border.all(color: style.cardBorder),
       ),
       child: SwitchListTile(
         title: Text(
           title,
           style: GoogleFonts.spaceGrotesk(
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: style.title,
           ),
         ),
         subtitle: Text(
           subtitle,
           style: GoogleFonts.spaceGrotesk(
             fontSize: 12,
-            color: Colors.white54,
+            color: style.muted,
           ),
         ),
         value: value,
@@ -334,11 +344,13 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withValues(alpha: 0.04),
+        color: style.card,
+        border: Border.all(color: style.cardBorder),
       ),
       child: ListTile(
         leading: Icon(icon, color: StadiumColors.accent),
@@ -346,17 +358,17 @@ class _ActionTile extends StatelessWidget {
           title,
           style: GoogleFonts.spaceGrotesk(
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: style.title,
           ),
         ),
         subtitle: Text(
           subtitle,
           style: GoogleFonts.spaceGrotesk(
             fontSize: 12,
-            color: Colors.white54,
+            color: style.muted,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: style.muted),
         onTap: onTap,
       ),
     );
@@ -374,12 +386,14 @@ class _VolumeSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 8, top: 4),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withValues(alpha: 0.04),
+        color: style.card,
+        border: Border.all(color: style.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,14 +402,14 @@ class _VolumeSlider extends StatelessWidget {
             'Default volume',
             style: GoogleFonts.spaceGrotesk(
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: style.title,
             ),
           ),
           Text(
-            'DFPlayer volume level (0–30)',
+            'DFPlayer volume level (0 to 30)',
             style: GoogleFonts.spaceGrotesk(
               fontSize: 12,
-              color: Colors.white54,
+              color: style.muted,
             ),
           ),
           Row(
@@ -412,7 +426,7 @@ class _VolumeSlider extends StatelessWidget {
               ),
               Text(
                 '$value',
-                style: GoogleFonts.robotoMono(color: Colors.white70),
+                style: GoogleFonts.robotoMono(color: style.body),
               ),
             ],
           ),
@@ -429,6 +443,7 @@ class _DangerZone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -451,7 +466,7 @@ class _DangerZone extends StatelessWidget {
             'Permanently erase local app data',
             style: GoogleFonts.spaceGrotesk(
               fontSize: 12,
-              color: Colors.white54,
+              color: style.muted,
             ),
           ),
           const SizedBox(height: 12),

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/app_theme.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
 class ScoreControlPanel extends StatefulWidget {
   const ScoreControlPanel({
@@ -65,6 +66,7 @@ class _ScoreControlPanelState extends State<ScoreControlPanel>
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final scoreStyle =
         Theme.of(context).extension<ScoreDisplayTheme>()?.scoreStyle ??
             const TextStyle(
@@ -77,14 +79,17 @@ class _ScoreControlPanelState extends State<ScoreControlPanel>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            StadiumColors.navyMid.withValues(alpha: 0.95),
-            StadiumColors.navy.withValues(alpha: 0.85),
-          ],
-        ),
+        color: style.card,
+        gradient: style.isDark
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  StadiumColors.navyMid.withValues(alpha: 0.95),
+                  StadiumColors.navy.withValues(alpha: 0.85),
+                ],
+              )
+            : null,
         border: Border.all(
           color: widget.accentColor.withValues(alpha: 0.35),
         ),
@@ -121,7 +126,7 @@ class _ScoreControlPanelState extends State<ScoreControlPanel>
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.6,
-                  color: Colors.white54,
+                  color: style.muted,
                 ),
               ),
             ],
@@ -135,7 +140,7 @@ class _ScoreControlPanelState extends State<ScoreControlPanel>
             style: GoogleFonts.spaceGrotesk(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: style.title,
             ),
           ),
           const SizedBox(height: 16),
@@ -160,6 +165,7 @@ class _ScoreControlPanelState extends State<ScoreControlPanel>
                   icon: Icons.remove_rounded,
                   label: '−',
                   color: widget.accentColor,
+                  style: style,
                   onPressed: widget.score > 0 ? widget.onDecrement : null,
                   filled: false,
                 ),
@@ -170,6 +176,7 @@ class _ScoreControlPanelState extends State<ScoreControlPanel>
                   icon: Icons.add_rounded,
                   label: '+',
                   color: widget.accentColor,
+                  style: style,
                   onPressed: widget.onIncrement,
                   filled: true,
                 ),
@@ -187,6 +194,7 @@ class _ScoreButton extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.color,
+    required this.style,
     required this.onPressed,
     required this.filled,
   });
@@ -194,6 +202,7 @@ class _ScoreButton extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final StadiumStyle style;
   final VoidCallback? onPressed;
   final bool filled;
 
@@ -231,7 +240,7 @@ class _ScoreButtonState extends State<_ScoreButton> {
             borderRadius: BorderRadius.circular(18),
             color: widget.filled
                 ? widget.color.withValues(alpha: enabled ? 0.22 : 0.08)
-                : Colors.white.withValues(alpha: enabled ? 0.06 : 0.03),
+                : widget.style.chipBackground.withValues(alpha: enabled ? 1 : 0.5),
             border: Border.all(
               color: widget.color.withValues(alpha: enabled ? 0.5 : 0.15),
               width: widget.filled ? 2 : 1,
@@ -243,7 +252,7 @@ class _ScoreButtonState extends State<_ScoreButton> {
               style: GoogleFonts.robotoMono(
                 fontSize: 36,
                 fontWeight: FontWeight.w700,
-                color: enabled ? widget.color : Colors.white24,
+                color: enabled ? widget.color : widget.style.muted.withValues(alpha: 0.4),
                 height: 1,
               ),
             ),

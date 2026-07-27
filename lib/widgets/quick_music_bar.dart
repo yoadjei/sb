@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
 class QuickMusicBar extends StatelessWidget {
   const QuickMusicBar({
@@ -26,6 +27,8 @@ class QuickMusicBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 380;
@@ -34,8 +37,8 @@ class QuickMusicBar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            color: StadiumColors.navy.withValues(alpha: 0.6),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+            color: style.card,
+            border: Border.all(color: style.cardBorder),
           ),
           child: Row(
             children: [
@@ -44,6 +47,7 @@ class QuickMusicBar extends StatelessWidget {
                 label: playing ? 'Pause' : 'Play',
                 showLabel: !compact,
                 highlighted: true,
+                style: style,
                 onPressed: onPlayPause,
               ),
               const SizedBox(width: 8),
@@ -51,6 +55,7 @@ class QuickMusicBar extends StatelessWidget {
                 icon: Icons.skip_next_rounded,
                 label: 'Next',
                 showLabel: !compact,
+                style: style,
                 onPressed: onNext,
               ),
               const SizedBox(width: 12),
@@ -59,7 +64,7 @@ class QuickMusicBar extends StatelessWidget {
                   children: [
                     Icon(
                       muted ? Icons.volume_off_rounded : Icons.volume_down_rounded,
-                      color: Colors.white54,
+                      color: style.muted,
                       size: 18,
                     ),
                     Expanded(
@@ -70,7 +75,7 @@ class QuickMusicBar extends StatelessWidget {
                               const RoundSliderThumbShape(enabledThumbRadius: 6),
                           overlayShape: SliderComponentShape.noOverlay,
                           activeTrackColor: StadiumColors.accent,
-                          inactiveTrackColor: Colors.white12,
+                          inactiveTrackColor: style.chipBackground,
                           thumbColor: StadiumColors.accent,
                         ),
                         child: Slider(
@@ -83,17 +88,19 @@ class QuickMusicBar extends StatelessWidget {
                     ),
                     _IconTap(
                       icon: Icons.remove_rounded,
+                      color: style.body,
                       onPressed: onVolumeDown,
                     ),
                     Text(
                       '$volume',
                       style: GoogleFonts.robotoMono(
                         fontSize: 12,
-                        color: Colors.white70,
+                        color: style.body,
                       ),
                     ),
                     _IconTap(
                       icon: Icons.add_rounded,
+                      color: style.body,
                       onPressed: onVolumeUp,
                     ),
                   ],
@@ -112,6 +119,7 @@ class _ControlButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onPressed,
+    required this.style,
     this.highlighted = false,
     this.showLabel = true,
   });
@@ -119,6 +127,7 @@ class _ControlButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
+  final StadiumStyle style;
   final bool highlighted;
   final bool showLabel;
 
@@ -127,7 +136,7 @@ class _ControlButton extends StatelessWidget {
     return Material(
       color: highlighted
           ? StadiumColors.accent.withValues(alpha: 0.18)
-          : Colors.white.withValues(alpha: 0.06),
+          : style.chipBackground,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -145,7 +154,7 @@ class _ControlButton extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: highlighted ? StadiumColors.accent : Colors.white70,
+                color: highlighted ? StadiumColors.accent : style.body,
                 size: 22,
               ),
               if (showLabel) ...[
@@ -155,7 +164,7 @@ class _ControlButton extends StatelessWidget {
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: highlighted ? StadiumColors.accent : Colors.white70,
+                    color: highlighted ? StadiumColors.accent : style.body,
                   ),
                 ),
               ],
@@ -168,10 +177,15 @@ class _ControlButton extends StatelessWidget {
 }
 
 class _IconTap extends StatelessWidget {
-  const _IconTap({required this.icon, required this.onPressed});
+  const _IconTap({
+    required this.icon,
+    required this.onPressed,
+    required this.color,
+  });
 
   final IconData icon;
   final VoidCallback onPressed;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +197,7 @@ class _IconTap extends StatelessWidget {
         HapticFeedback.selectionClick();
         onPressed();
       },
-      icon: Icon(icon, color: Colors.white70, size: 18),
+      icon: Icon(icon, color: color, size: 18),
     );
   }
 }

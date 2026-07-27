@@ -9,6 +9,7 @@ import '../models/bt_device.dart';
 import '../models/connection_status.dart';
 import '../providers/connection_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/device_card.dart';
 import 'dashboard_screen.dart';
 
@@ -168,13 +169,15 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
     final isConnecting = status.mode == ConnectionMode.connecting;
     final devices = status.discoveredDevices;
 
+    final style = StadiumStyle.of(context);
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [StadiumColors.navy, StadiumColors.navyMid],
+            colors: style.scaffoldGradient,
           ),
         ),
         child: SafeArea(
@@ -191,7 +194,7 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: style.title,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -199,7 +202,7 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
                       'Select your ESP32 module or try Simulation Mode without hardware.',
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 14,
-                        color: Colors.white60,
+                        color: style.muted,
                         height: 1.4,
                       ),
                     ),
@@ -214,7 +217,7 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
                   ),
                 )
               else if (_bluetoothOff)
-                Expanded(child: _BluetoothOffState(onEnable: _enableBluetooth))
+                Expanded(child: _BluetoothOffState(onEnable: _enableBluetooth, style: style))
               else ...[
                 _SearchAnimation(
                   controller: _searchController,
@@ -233,7 +236,7 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
                                   ? 'No devices found'
                                   : '${devices.length} device${devices.length == 1 ? '' : 's'} found',
                           style: GoogleFonts.spaceGrotesk(
-                            color: Colors.white70,
+                            color: style.body,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -256,7 +259,7 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
                 ),
                 Expanded(
                   child: devices.isEmpty && !isScanning
-                      ? _EmptyScanState(onRescan: _startScan)
+                      ? _EmptyScanState(onRescan: _startScan, style: style)
                       : ListView.separated(
                           padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
                           itemCount: devices.length,
@@ -405,9 +408,10 @@ class _RadarPainter extends CustomPainter {
 }
 
 class _EmptyScanState extends StatelessWidget {
-  const _EmptyScanState({required this.onRescan});
+  const _EmptyScanState({required this.onRescan, required this.style});
 
   final VoidCallback onRescan;
+  final StadiumStyle style;
 
   @override
   Widget build(BuildContext context) {
@@ -420,7 +424,7 @@ class _EmptyScanState extends StatelessWidget {
             Icon(
               Icons.devices_other_outlined,
               size: 48,
-              color: Colors.white.withValues(alpha: 0.35),
+              color: style.muted.withValues(alpha: 0.65),
             ),
             const SizedBox(height: 16),
             Text(
@@ -428,7 +432,7 @@ class _EmptyScanState extends StatelessWidget {
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: style.title,
               ),
             ),
             const SizedBox(height: 8),
@@ -437,7 +441,7 @@ class _EmptyScanState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 14,
-                color: Colors.white60,
+                color: style.muted,
                 height: 1.45,
               ),
             ),
@@ -466,9 +470,10 @@ class _EmptyScanState extends StatelessWidget {
 }
 
 class _BluetoothOffState extends StatelessWidget {
-  const _BluetoothOffState({required this.onEnable});
+  const _BluetoothOffState({required this.onEnable, required this.style});
 
   final VoidCallback onEnable;
+  final StadiumStyle style;
 
   @override
   Widget build(BuildContext context) {
@@ -489,7 +494,7 @@ class _BluetoothOffState extends StatelessWidget {
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: style.title,
               ),
             ),
             const SizedBox(height: 8),
@@ -498,7 +503,7 @@ class _BluetoothOffState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 14,
-                color: Colors.white60,
+                color: style.muted,
                 height: 1.45,
               ),
             ),

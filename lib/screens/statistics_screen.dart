@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/match_record.dart';
 import '../providers/history_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/stadium_scaffold.dart';
 
 class MatchStatistics {
@@ -79,11 +80,13 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
     final history = ref.watch(historyProvider);
     final stats = computeStatistics(history.matches);
 
+    final style = StadiumStyle.of(context);
+
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Statistics'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
       ),
       body: history.matches.isEmpty
           ? _EmptyStatistics()
@@ -119,7 +122,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.4,
-                      color: Colors.white54,
+                      color: style.muted,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -139,20 +142,21 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
 class _EmptyStatistics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bar_chart_rounded, size: 64, color: Colors.white24),
+            Icon(Icons.bar_chart_rounded, size: 64, color: style.muted.withValues(alpha: 0.45)),
             const SizedBox(height: 16),
             Text(
               'No statistics yet',
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.white54,
+                color: style.muted,
               ),
             ),
             const SizedBox(height: 8),
@@ -161,7 +165,7 @@ class _EmptyStatistics extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 14,
-                color: Colors.white38,
+                color: style.muted.withValues(alpha: 0.75),
               ),
             ),
           ],
@@ -186,11 +190,12 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withValues(alpha: 0.04),
+        color: style.card,
         border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Row(
@@ -212,7 +217,7 @@ class _StatCard extends StatelessWidget {
                   label,
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 13,
-                    color: Colors.white54,
+                    color: style.muted,
                   ),
                 ),
                 Text(
@@ -220,7 +225,7 @@ class _StatCard extends StatelessWidget {
                   style: GoogleFonts.robotoMono(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: style.title,
                   ),
                 ),
               ],
@@ -240,12 +245,13 @@ class _WinRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withValues(alpha: 0.04),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        color: style.card,
+        border: Border.all(color: style.cardBorder),
       ),
       child: Row(
         children: [
@@ -255,7 +261,7 @@ class _WinRow extends StatelessWidget {
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: style.title,
               ),
             ),
           ),
@@ -272,7 +278,7 @@ class _WinRow extends StatelessWidget {
             wins == 1 ? 'win' : 'wins',
             style: GoogleFonts.spaceGrotesk(
               fontSize: 12,
-              color: Colors.white54,
+              color: style.muted,
             ),
           ),
         ],

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
-/// Gradient-backed scaffold helper for Stadium Night screens.
+/// Gradient-backed scaffold that follows light / dark theme.
 class StadiumScaffold extends StatelessWidget {
   const StadiumScaffold({
     super.key,
@@ -20,17 +20,19 @@ class StadiumScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
+
     return Scaffold(
       extendBodyBehindAppBar: appBar != null,
       appBar: appBar,
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [StadiumColors.navy, StadiumColors.navyMid],
+            colors: style.scaffoldGradient,
           ),
         ),
         child: SafeArea(
@@ -41,7 +43,6 @@ class StadiumScaffold extends StatelessWidget {
   }
 }
 
-/// Lightweight app bar title used across hub and stub screens.
 class StadiumAppBarTitle extends StatelessWidget {
   const StadiumAppBarTitle(this.label, {super.key});
 
@@ -49,12 +50,35 @@ class StadiumAppBarTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Text(
       label,
       style: GoogleFonts.spaceGrotesk(
         fontWeight: FontWeight.w700,
         fontSize: 20,
-        letterSpacing: 0.5,
+        letterSpacing: 0.2,
+        color: style.title,
+      ),
+    );
+  }
+}
+
+/// DSS brand mark used in app bars.
+class DssLogoMark extends StatelessWidget {
+  const DssLogoMark({super.key, this.size = 22});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
+    return Text(
+      'DSS',
+      style: GoogleFonts.spaceGrotesk(
+        fontSize: size,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1.2,
+        color: style.brand,
       ),
     );
   }

@@ -8,6 +8,7 @@ import '../models/connection_status.dart';
 import '../providers/connection_provider.dart';
 import '../providers/music_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/stadium_scaffold.dart';
 import 'music_library_screen.dart';
 
@@ -43,11 +44,13 @@ class _MusicPlayerScreenState extends ConsumerState<MusicPlayerScreen> {
         ? music.currentTitle!
         : 'Nothing playing';
 
+    final style = StadiumStyle.of(context);
+
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Music Player'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
         actions: [
           IconButton(
             tooltip: 'Library',
@@ -76,7 +79,7 @@ class _MusicPlayerScreenState extends ConsumerState<MusicPlayerScreen> {
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: style.title,
               ),
             ),
             const SizedBox(height: 8),
@@ -86,13 +89,14 @@ class _MusicPlayerScreenState extends ConsumerState<MusicPlayerScreen> {
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.6,
-                color: music.playing ? StadiumColors.accent : Colors.white38,
+                color: music.playing ? StadiumColors.accent : style.muted,
               ),
             ),
             const SizedBox(height: 32),
             _VolumeSection(
               volume: music.volume,
               muted: music.muted,
+              style: style,
               onVolumeDown: () => ref.read(musicProvider.notifier).volumeDown(),
               onVolumeUp: () => ref.read(musicProvider.notifier).volumeUp(),
             ),
@@ -103,12 +107,14 @@ class _MusicPlayerScreenState extends ConsumerState<MusicPlayerScreen> {
                 _ModeToggle(
                   icon: Icons.shuffle_rounded,
                   active: music.shuffle,
+                  style: style,
                   onTap: () => ref.read(musicProvider.notifier).toggleShuffle(),
                 ),
                 const SizedBox(width: 12),
                 _TransportButton(
                   icon: Icons.skip_previous_rounded,
                   size: 48,
+                  style: style,
                   onTap: () => ref.read(musicProvider.notifier).previous(),
                 ),
                 const SizedBox(width: 16),
@@ -127,12 +133,14 @@ class _MusicPlayerScreenState extends ConsumerState<MusicPlayerScreen> {
                 _TransportButton(
                   icon: Icons.skip_next_rounded,
                   size: 48,
+                  style: style,
                   onTap: () => ref.read(musicProvider.notifier).next(),
                 ),
                 const SizedBox(width: 12),
                 _ModeToggle(
                   icon: Icons.repeat_rounded,
                   active: music.repeat,
+                  style: style,
                   onTap: () => ref.read(musicProvider.notifier).toggleRepeat(),
                 ),
               ],
@@ -142,6 +150,7 @@ class _MusicPlayerScreenState extends ConsumerState<MusicPlayerScreen> {
               icon: music.muted ? Icons.volume_off_rounded : Icons.volume_mute_rounded,
               label: music.muted ? 'Unmute' : 'Mute',
               size: 40,
+              style: style,
               onTap: () {
                 final notifier = ref.read(musicProvider.notifier);
                 if (music.muted) {
@@ -165,16 +174,17 @@ class _BtStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final isSimulation = status.mode == ConnectionMode.simulation;
     final isConnected = status.mode == ConnectionMode.connected;
     final label = isSimulation
         ? 'Simulation Mode'
         : isConnected
             ? 'Bluetooth Connected'
-            : 'Offline — commands may fail';
+            : 'Offline: commands may fail';
     final color = isSimulation || isConnected
         ? StadiumColors.accent
-        : Colors.white38;
+        : style.muted;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -217,24 +227,28 @@ class _ArtworkPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Container(
       width: 220,
       height: 220,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            StadiumColors.accent.withValues(alpha: playing ? 0.35 : 0.15),
-            StadiumColors.navyMid,
-            StadiumColors.navy,
-          ],
-        ),
+        color: style.iconWell,
+        gradient: style.isDark
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  StadiumColors.accent.withValues(alpha: playing ? 0.35 : 0.15),
+                  StadiumColors.navyMid,
+                  StadiumColors.navy,
+                ],
+              )
+            : null,
         border: Border.all(
           color: playing
               ? StadiumColors.accent.withValues(alpha: 0.5)
-              : Colors.white12,
+              : style.cardBorder,
           width: 2,
         ),
         boxShadow: [
@@ -248,7 +262,7 @@ class _ArtworkPlaceholder extends StatelessWidget {
       child: Icon(
         playing ? Icons.graphic_eq_rounded : Icons.album_rounded,
         size: 80,
-        color: playing ? StadiumColors.accent : Colors.white38,
+        color: playing ? StadiumColors.accent : style.muted,
       ),
     );
   }
@@ -258,12 +272,14 @@ class _VolumeSection extends StatelessWidget {
   const _VolumeSection({
     required this.volume,
     required this.muted,
+    required this.style,
     required this.onVolumeDown,
     required this.onVolumeUp,
   });
 
   final int volume;
   final bool muted;
+  final StadiumStyle style;
   final VoidCallback onVolumeDown;
   final VoidCallback onVolumeUp;
 
@@ -275,7 +291,7 @@ class _VolumeSection extends StatelessWidget {
           children: [
             Icon(
               muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-              color: Colors.white54,
+              color: style.muted,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -285,8 +301,8 @@ class _VolumeSection extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: volume / 30,
                   minHeight: 6,
-                  backgroundColor: Colors.white12,
-                  color: muted ? Colors.white38 : StadiumColors.accent,
+                  backgroundColor: style.chipBackground,
+                  color: muted ? style.muted : StadiumColors.accent,
                 ),
               ),
             ),
@@ -295,7 +311,7 @@ class _VolumeSection extends StatelessWidget {
               '$volume',
               style: GoogleFonts.robotoMono(
                 fontSize: 14,
-                color: Colors.white70,
+                color: style.body,
               ),
             ),
           ],
@@ -309,7 +325,7 @@ class _VolumeSection extends StatelessWidget {
                 HapticFeedback.selectionClick();
                 onVolumeDown();
               },
-              icon: const Icon(Icons.remove_circle_outline, color: Colors.white70),
+              icon: Icon(Icons.remove_circle_outline, color: style.body),
             ),
             Text(
               'VOLUME',
@@ -317,7 +333,7 @@ class _VolumeSection extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.4,
-                color: Colors.white38,
+                color: style.muted,
               ),
             ),
             IconButton(
@@ -325,7 +341,7 @@ class _VolumeSection extends StatelessWidget {
                 HapticFeedback.selectionClick();
                 onVolumeUp();
               },
-              icon: const Icon(Icons.add_circle_outline, color: Colors.white70),
+              icon: Icon(Icons.add_circle_outline, color: style.body),
             ),
           ],
         ),
@@ -371,19 +387,21 @@ class _TransportButton extends StatelessWidget {
   const _TransportButton({
     required this.icon,
     required this.onTap,
+    required this.style,
     this.size = 44,
     this.label,
   });
 
   final IconData icon;
   final VoidCallback onTap;
+  final StadiumStyle style;
   final double size;
   final String? label;
 
   @override
   Widget build(BuildContext context) {
     final button = Material(
-      color: Colors.white.withValues(alpha: 0.08),
+      color: style.chipBackground,
       borderRadius: BorderRadius.circular(size / 2),
       child: InkWell(
         borderRadius: BorderRadius.circular(size / 2),
@@ -394,7 +412,7 @@ class _TransportButton extends StatelessWidget {
         child: SizedBox(
           width: size,
           height: size,
-          child: Icon(icon, color: Colors.white, size: size * 0.55),
+          child: Icon(icon, color: style.title, size: size * 0.55),
         ),
       ),
     );
@@ -409,7 +427,7 @@ class _TransportButton extends StatelessWidget {
           label!,
           style: GoogleFonts.spaceGrotesk(
             fontSize: 11,
-            color: Colors.white54,
+            color: style.muted,
           ),
         ),
       ],
@@ -421,11 +439,13 @@ class _ModeToggle extends StatelessWidget {
   const _ModeToggle({
     required this.icon,
     required this.active,
+    required this.style,
     required this.onTap,
   });
 
   final IconData icon;
   final bool active;
+  final StadiumStyle style;
   final VoidCallback onTap;
 
   @override
@@ -433,7 +453,7 @@ class _ModeToggle extends StatelessWidget {
     return Material(
       color: active
           ? StadiumColors.accent.withValues(alpha: 0.2)
-          : Colors.white.withValues(alpha: 0.06),
+          : style.chipBackground,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -445,7 +465,7 @@ class _ModeToggle extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Icon(
             icon,
-            color: active ? StadiumColors.accent : Colors.white54,
+            color: active ? StadiumColors.accent : style.muted,
             size: 22,
           ),
         ),

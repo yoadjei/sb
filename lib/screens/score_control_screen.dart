@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../providers/score_provider.dart';
 import '../providers/settings_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/live_scoreboard_card.dart';
 import '../widgets/score_control_panel.dart';
 import '../widgets/stadium_scaffold.dart';
@@ -37,11 +38,13 @@ class _ScoreControlScreenState extends ConsumerState<ScoreControlScreen> {
       });
     });
 
+    final style = StadiumStyle.of(context);
+
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Score Control'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -59,7 +62,7 @@ class _ScoreControlScreenState extends ConsumerState<ScoreControlScreen> {
                     LiveScoreboardCard(
                       teamA: score.teamA,
                       teamB: score.teamB,
-                      timerLabel: '—',
+                      timerLabel: 'n/a',
                       matchActive: score.matchActive,
                       animationsEnabled: settings.animationsEnabled,
                     ),
@@ -70,7 +73,7 @@ class _ScoreControlScreenState extends ConsumerState<ScoreControlScreen> {
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.4,
-                        color: Colors.white54,
+                        color: StadiumStyle.of(context).muted,
                       ),
                     ),
                     const SizedBox(height: 12),

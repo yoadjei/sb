@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/team.dart';
 import '../themes/app_theme.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
 class LiveScoreboardCard extends StatelessWidget {
   const LiveScoreboardCard({
@@ -23,6 +24,7 @@ class LiveScoreboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final scoreStyle =
         Theme.of(context).extension<ScoreDisplayTheme>()?.scoreStyle ??
             const TextStyle(
@@ -40,20 +42,21 @@ class LiveScoreboardCard extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                StadiumColors.navyMid.withValues(alpha: 0.95),
-                StadiumColors.navy,
-              ],
-            ),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
-            ),
+            color: style.card,
+            gradient: style.isDark
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      StadiumColors.navyMid.withValues(alpha: 0.95),
+                      StadiumColors.navy,
+                    ],
+                  )
+                : null,
+            border: Border.all(color: style.cardBorder),
             boxShadow: [
               BoxShadow(
-                color: StadiumColors.accent.withValues(alpha: 0.08),
+                color: StadiumColors.accent.withValues(alpha: style.isDark ? 0.08 : 0.06),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -68,7 +71,7 @@ class LiveScoreboardCard extends StatelessWidget {
                     Icon(
                       matchActive ? Icons.circle : Icons.circle_outlined,
                       size: 10,
-                      color: matchActive ? StadiumColors.accent : Colors.white38,
+                      color: matchActive ? StadiumColors.accent : style.muted,
                     ),
                     const SizedBox(width: 8),
                     Flexible(
@@ -79,7 +82,7 @@ class LiveScoreboardCard extends StatelessWidget {
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 2,
-                          color: matchActive ? StadiumColors.accent : Colors.white54,
+                          color: matchActive ? StadiumColors.accent : style.muted,
                         ),
                       ),
                     ),
@@ -87,14 +90,14 @@ class LiveScoreboardCard extends StatelessWidget {
                     Icon(
                       Icons.timer_outlined,
                       size: 14,
-                      color: Colors.white54,
+                      color: style.muted,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       timerLabel,
                       style: GoogleFonts.robotoMono(
                         fontSize: 13,
-                        color: Colors.white70,
+                        color: style.body,
                         letterSpacing: 1,
                       ),
                     ),
@@ -105,7 +108,11 @@ class LiveScoreboardCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: _TeamColumn(team: teamA, align: CrossAxisAlignment.start),
+                      child: _TeamColumn(
+                        team: teamA,
+                        align: CrossAxisAlignment.start,
+                        style: style,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
@@ -114,7 +121,7 @@ class LiveScoreboardCard extends StatelessWidget {
                         style: GoogleFonts.spaceGrotesk(
                           fontSize: compact ? 14 : 18,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white30,
+                          color: style.muted.withValues(alpha: 0.6),
                           letterSpacing: 2,
                         ),
                       ),
@@ -123,6 +130,7 @@ class LiveScoreboardCard extends StatelessWidget {
                       child: _TeamColumn(
                         team: teamB,
                         align: CrossAxisAlignment.end,
+                        style: style,
                       ),
                     ),
                   ],
@@ -167,10 +175,12 @@ class _TeamColumn extends StatelessWidget {
   const _TeamColumn({
     required this.team,
     required this.align,
+    required this.style,
   });
 
   final Team team;
   final CrossAxisAlignment align;
+  final StadiumStyle style;
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +210,7 @@ class _TeamColumn extends StatelessWidget {
           style: GoogleFonts.spaceGrotesk(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: style.title,
             height: 1.2,
           ),
         ),

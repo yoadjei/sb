@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../models/match_record.dart';
 import '../providers/history_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../utils/formatters.dart';
 import '../widgets/stadium_scaffold.dart';
 
@@ -55,12 +56,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     });
 
     final matches = history.filteredMatches;
+    final style = StadiumStyle.of(context);
 
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('Match History'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
         actions: [
           if (matches.isNotEmpty)
             IconButton(
@@ -78,16 +80,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               controller: _searchController,
               onChanged: (value) =>
                   ref.read(historyProvider.notifier).setSearchQuery(value),
-              style: GoogleFonts.spaceGrotesk(color: Colors.white),
+              style: GoogleFonts.spaceGrotesk(color: style.title),
               decoration: InputDecoration(
                 hintText: 'Search teams…',
-                hintStyle: GoogleFonts.spaceGrotesk(color: Colors.white38),
-                prefixIcon: const Icon(Icons.search_rounded, color: Colors.white54),
+                hintStyle: GoogleFonts.spaceGrotesk(color: style.muted),
+                prefixIcon: Icon(Icons.search_rounded, color: style.muted),
                 filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.06),
+                fillColor: style.card,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(color: style.cardBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: style.cardBorder),
                 ),
               ),
             ),
@@ -150,18 +156,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   Future<void> _confirmDelete(MatchRecord match) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: StadiumColors.navyMid,
+      builder: (context) {
+        final dialogStyle = StadiumStyle.of(context);
+        return AlertDialog(
+        backgroundColor: dialogStyle.isDark ? StadiumColors.navyMid : dialogStyle.card,
         title: Text(
           'Delete Match?',
           style: GoogleFonts.spaceGrotesk(
-            color: Colors.white,
+            color: dialogStyle.title,
             fontWeight: FontWeight.w700,
           ),
         ),
         content: Text(
           '${match.teamAName} vs ${match.teamBName} will be removed from history.',
-          style: GoogleFonts.spaceGrotesk(color: Colors.white70),
+          style: GoogleFonts.spaceGrotesk(color: dialogStyle.body),
         ),
         actions: [
           TextButton(
@@ -177,7 +185,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             child: const Text('Delete'),
           ),
         ],
-      ),
+      );
+      },
     );
 
     if (confirmed == true) {
@@ -194,6 +203,7 @@ class _EmptyHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -203,7 +213,7 @@ class _EmptyHistory extends StatelessWidget {
             Icon(
               hasSearch ? Icons.search_off_rounded : Icons.history_rounded,
               size: 64,
-              color: Colors.white24,
+              color: style.muted.withValues(alpha: 0.45),
             ),
             const SizedBox(height: 16),
             Text(
@@ -211,7 +221,7 @@ class _EmptyHistory extends StatelessWidget {
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.white54,
+                color: style.muted,
               ),
             ),
             const SizedBox(height: 8),
@@ -222,7 +232,7 @@ class _EmptyHistory extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 14,
-                color: Colors.white38,
+                color: style.muted.withValues(alpha: 0.75),
               ),
             ),
           ],
@@ -245,14 +255,15 @@ class _MatchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final winner = Formatters.winnerLabel(match);
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withValues(alpha: 0.04),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        color: style.card,
+        border: Border.all(color: style.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,7 +274,7 @@ class _MatchTile extends StatelessWidget {
                 Formatters.formatDateShort(match.playedAt),
                 style: GoogleFonts.spaceGrotesk(
                   fontSize: 12,
-                  color: Colors.white54,
+                  color: style.muted,
                 ),
               ),
               const Spacer(),
@@ -280,11 +291,11 @@ class _MatchTile extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${match.teamAName}  ${match.scoreA} – ${match.scoreB}  ${match.teamBName}',
+            '${match.teamAName}  ${match.scoreA} to ${match.scoreB}  ${match.teamBName}',
             style: GoogleFonts.spaceGrotesk(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: style.title,
             ),
           ),
           const SizedBox(height: 4),

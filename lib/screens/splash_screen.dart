@@ -16,8 +16,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _pulseController;
+  late final AnimationController _enterController;
   Timer? _navTimer;
 
   @override
@@ -25,10 +26,15 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
+      duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
 
-    _navTimer = Timer(const Duration(seconds: 2), _goToPermissions);
+    _enterController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..forward();
+
+    _navTimer = Timer(const Duration(milliseconds: 2400), _goToPermissions);
   }
 
   void _goToPermissions() {
@@ -42,18 +48,33 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     _navTimer?.cancel();
     _pulseController.dispose();
+    _enterController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final fade = CurvedAnimation(
+      parent: _enterController,
+      curve: Curves.easeOutCubic,
+    );
+    final slide = Tween<Offset>(
+      begin: const Offset(0, 0.06),
+      end: Offset.zero,
+    ).animate(fade);
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [StadiumColors.navy, StadiumColors.navyMid],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF071525),
+              StadiumColors.navy,
+              StadiumColors.navyMid,
+            ],
+            stops: [0.0, 0.45, 1.0],
           ),
         ),
         child: SafeArea(
@@ -61,61 +82,104 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               Positioned.fill(
                 child: CustomPaint(
-                  painter: _StadiumGridPainter(
-                    pulse: _pulseController,
-                  ),
+                  painter: _StadiumAtmospherePainter(pulse: _pulseController),
                 ),
               ),
               Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AnimatedBuilder(
-                      animation: _pulseController,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: 1 + (_pulseController.value * 0.02),
-                          child: child,
-                        );
-                      },
-                      child: SizedBox(
-                        width: 260,
-                        height: 140,
-                        child: CustomPaint(
-                          painter: _ScoreboardGraphicPainter(),
-                        ),
+                child: FadeTransition(
+                  opacity: fade,
+                  child: SlideTransition(
+                    position: slide,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: 1 + (_pulseController.value * 0.015),
+                                child: child,
+                              );
+                            },
+                            child: Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(24),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    StadiumColors.brand,
+                                    StadiumColors.brand.withValues(alpha: 0.75),
+                                    StadiumColors.accent.withValues(alpha: 0.85),
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: StadiumColors.brand
+                                        .withValues(alpha: 0.35),
+                                    blurRadius: 28,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'DSS',
+                                style: GoogleFonts.spaceGrotesk(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.5,
+                                  color: StadiumColors.navy,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          Text(
+                            'Digital Sports Scoreboard',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              height: 1.15,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Control live scores, music, and match flow from one operator console.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: 15,
+                              height: 1.45,
+                              color: Colors.white.withValues(alpha: 0.68),
+                            ),
+                          ),
+                          const SizedBox(height: 36),
+                          SizedBox(
+                            width: 220,
+                            height: 110,
+                            child: CustomPaint(
+                              painter: _ScoreboardGraphicPainter(),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          SizedBox(
+                            width: 26,
+                            height: 26,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.4,
+                              color: StadiumColors.brand.withValues(alpha: 0.95),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 36),
-                    Text(
-                      'Digital Sports',
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 4,
-                        color: StadiumColors.accent.withValues(alpha: 0.85),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Scoreboard',
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        height: 1.1,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: StadiumColors.accent.withValues(alpha: 0.9),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -131,45 +195,44 @@ class _ScoreboardGraphicPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final frameRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      const Radius.circular(18),
+      const Radius.circular(16),
     );
 
-    final framePaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white.withValues(alpha: 0.14),
-          Colors.white.withValues(alpha: 0.04),
-        ],
-      ).createShader(frameRect.outerRect)
-      ..style = PaintingStyle.fill;
+    canvas.drawRRect(
+      frameRect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: 0.12),
+            Colors.white.withValues(alpha: 0.03),
+          ],
+        ).createShader(frameRect.outerRect),
+    );
 
-    canvas.drawRRect(frameRect, framePaint);
-
-    final borderPaint = Paint()
-      ..color = StadiumColors.accent.withValues(alpha: 0.45)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    canvas.drawRRect(frameRect, borderPaint);
+    canvas.drawRRect(
+      frameRect,
+      Paint()
+        ..color = StadiumColors.brand.withValues(alpha: 0.55)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4,
+    );
 
     final displayRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(16, 16, size.width - 32, size.height - 32),
+      Rect.fromLTWH(14, 14, size.width - 28, size.height - 28),
       const Radius.circular(10),
     );
-    canvas.drawRRect(
-      displayRect,
-      Paint()..color = const Color(0xFF061018),
-    );
+    canvas.drawRRect(displayRect, Paint()..color = const Color(0xFF061018));
 
-    _drawScore(canvas, 48, 52, '12', StadiumColors.accent);
-    _drawScore(canvas, size.width - 48, 52, '09', StadiumColors.rival);
+    _drawScore(canvas, 44, 38, '12', StadiumColors.accent);
+    _drawScore(canvas, size.width - 44, 38, '09', StadiumColors.rival);
 
     final vsPaint = TextPainter(
       text: TextSpan(
         text: 'VS',
         style: GoogleFonts.spaceGrotesk(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w700,
           color: Colors.white38,
         ),
@@ -178,23 +241,11 @@ class _ScoreboardGraphicPainter extends CustomPainter {
     )..layout();
     vsPaint.paint(
       canvas,
-      Offset(
-        (size.width - vsPaint.width) / 2,
-        40,
-      ),
+      Offset((size.width - vsPaint.width) / 2, 30),
     );
 
-    _drawTeamLabel(canvas, 48, 88, 'TEAM A');
-    _drawTeamLabel(canvas, size.width - 48, 88, 'TEAM B');
-
-    final ledPaint = Paint()..color = StadiumColors.accent.withValues(alpha: 0.7);
-    for (var i = 0; i < 7; i++) {
-      canvas.drawCircle(
-        Offset(24 + (i * 34), size.height - 14),
-        2.5,
-        ledPaint..color = StadiumColors.accent.withValues(alpha: 0.35 + (i * 0.08)),
-      );
-    }
+    _drawTeamLabel(canvas, 44, 72, 'HOME');
+    _drawTeamLabel(canvas, size.width - 44, 72, 'AWAY');
   }
 
   void _drawScore(Canvas canvas, double x, double y, String score, Color color) {
@@ -202,10 +253,9 @@ class _ScoreboardGraphicPainter extends CustomPainter {
       text: TextSpan(
         text: score,
         style: GoogleFonts.robotoMono(
-          fontSize: 36,
+          fontSize: 32,
           fontWeight: FontWeight.w700,
           color: color,
-          letterSpacing: 2,
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -220,7 +270,7 @@ class _ScoreboardGraphicPainter extends CustomPainter {
         style: GoogleFonts.spaceGrotesk(
           fontSize: 10,
           fontWeight: FontWeight.w600,
-          letterSpacing: 1.2,
+          letterSpacing: 1.1,
           color: Colors.white38,
         ),
       ),
@@ -233,66 +283,48 @@ class _ScoreboardGraphicPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _StadiumGridPainter extends CustomPainter {
-  _StadiumGridPainter({required this.pulse});
+class _StadiumAtmospherePainter extends CustomPainter {
+  _StadiumAtmospherePainter({required this.pulse});
 
   final Animation<double> pulse;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height * 0.42);
-    final radius = size.shortestSide * (0.55 + pulse.value * 0.04);
+    final center = Offset(size.width / 2, size.height * 0.38);
+    final radius = size.shortestSide * (0.5 + pulse.value * 0.03);
 
-    final ringPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    for (var i = 1; i <= 3; i++) {
-      ringPaint.color = StadiumColors.accent.withValues(alpha: 0.04 * i);
-      canvas.drawCircle(center, radius * (i / 3), ringPaint);
-    }
-
-    final linePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.03)
-      ..strokeWidth = 1;
-
-    const spacing = 48.0;
-    for (var x = 0.0; x < size.width; x += spacing) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), linePaint);
-    }
-    for (var y = 0.0; y < size.height; y += spacing) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), linePaint);
-    }
-
-    final glowPaint = Paint()
+    final glow = Paint()
       ..shader = RadialGradient(
-        center: Alignment.center,
-        radius: 0.8,
         colors: [
-          StadiumColors.accent.withValues(alpha: 0.06 + pulse.value * 0.04),
+          StadiumColors.brand.withValues(alpha: 0.10 + pulse.value * 0.04),
+          StadiumColors.accent.withValues(alpha: 0.04),
           Colors.transparent,
         ],
+        stops: const [0.0, 0.45, 1.0],
       ).createShader(Rect.fromCircle(center: center, radius: radius));
+    canvas.drawCircle(center, radius, glow);
 
-    canvas.drawCircle(center, radius, glowPaint);
-
-    final arcPaint = Paint()
-      ..color = StadiumColors.accent.withValues(alpha: 0.08)
+    final ring = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
+      ..strokeWidth = 1.2
+      ..color = StadiumColors.brand.withValues(alpha: 0.08);
+    canvas.drawCircle(center, radius * 0.72, ring);
 
     canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius * 0.85),
-      -math.pi / 4,
-      math.pi / 2,
+      Rect.fromCircle(center: center, radius: radius * 0.9),
+      -math.pi / 5,
+      math.pi / 2.2,
       false,
-      arcPaint,
+      Paint()
+        ..color = StadiumColors.accent.withValues(alpha: 0.12)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round,
     );
   }
 
   @override
-  bool shouldRepaint(covariant _StadiumGridPainter oldDelegate) {
+  bool shouldRepaint(covariant _StadiumAtmospherePainter oldDelegate) {
     return oldDelegate.pulse.value != pulse.value;
   }
 }

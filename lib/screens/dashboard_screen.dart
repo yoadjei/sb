@@ -13,6 +13,7 @@ import '../providers/score_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/timer_provider.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../utils/commands.dart';
 import '../widgets/connection_banner.dart';
 import '../widgets/connection_lost_dialog.dart';
@@ -153,7 +154,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.2,
-                              color: Colors.white54,
+                              color: StadiumStyle.of(context).muted,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -175,7 +176,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.2,
-                              color: Colors.white54,
+                              color: StadiumStyle.of(context).muted,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -193,23 +194,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, ConnectionStatus status) {
+    final style = StadiumStyle.of(context);
     final batteryLabel =
-        status.batteryPercent != null ? '${status.batteryPercent}%' : '—';
+        status.batteryPercent != null ? '${status.batteryPercent}%' : 'n/a';
 
     return AppBar(
       backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
+      foregroundColor: style.title,
       title: Row(
         children: [
-          Text(
-            'DSS',
-            style: GoogleFonts.spaceGrotesk(
-              fontWeight: FontWeight.w800,
-              fontSize: 22,
-              letterSpacing: 1.5,
-              color: StadiumColors.accent,
-            ),
-          ),
+          const DssLogoMark(),
           const SizedBox(width: 12),
           Flexible(child: _StatusChip(status: status)),
         ],
@@ -222,14 +216,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Icon(
                 Icons.battery_std_rounded,
                 size: 18,
-                color: Colors.white54,
+                color: style.muted,
               ),
               const SizedBox(width: 4),
               Text(
                 batteryLabel,
                 style: GoogleFonts.robotoMono(
                   fontSize: 13,
-                  color: Colors.white70,
+                  color: style.body,
                 ),
               ),
               const SizedBox(width: 8),
@@ -301,18 +295,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Future<void> _confirmReset(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: StadiumColors.navyMid,
+      builder: (context) {
+        final dialogStyle = StadiumStyle.of(context);
+        return AlertDialog(
+        backgroundColor: dialogStyle.isDark ? StadiumColors.navyMid : dialogStyle.card,
         title: Text(
           'Reset Match?',
           style: GoogleFonts.spaceGrotesk(
-            color: Colors.white,
+            color: dialogStyle.title,
             fontWeight: FontWeight.w700,
           ),
         ),
         content: Text(
           'Scores and team names will return to defaults on the scoreboard.',
-          style: GoogleFonts.spaceGrotesk(color: Colors.white70),
+          style: GoogleFonts.spaceGrotesk(color: dialogStyle.body),
         ),
         actions: [
           TextButton(
@@ -328,7 +324,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: const Text('Reset'),
           ),
         ],
-      ),
+      );
+      },
     );
 
     if (confirmed == true && context.mounted) {
@@ -380,6 +377,7 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final isSimulation = status.mode == ConnectionMode.simulation;
     final isConnected = status.mode == ConnectionMode.connected;
     final label = isSimulation
@@ -389,7 +387,7 @@ class _StatusChip extends StatelessWidget {
             : 'Offline';
     final color = isSimulation || isConnected
         ? StadiumColors.accent
-        : Colors.white38;
+        : style.muted;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -453,6 +451,7 @@ class _DashboardPrimaryColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -478,7 +477,7 @@ class _DashboardPrimaryColumn extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
-            color: Colors.white54,
+            color: style.muted,
           ),
         ),
         const SizedBox(height: 12),
@@ -513,6 +512,7 @@ class _DashboardSecondaryColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -538,7 +538,7 @@ class _DashboardSecondaryColumn extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
-            color: Colors.white54,
+            color: style.muted,
           ),
         ),
         const SizedBox(height: 12),
@@ -645,13 +645,13 @@ class _QuickActionsRow extends StatelessWidget {
         _ActionChip(
           label: 'Reset',
           icon: Icons.restart_alt_rounded,
-          color: Colors.white70,
+          color: StadiumStyle.of(context).body,
           onPressed: onReset,
         ),
         _ActionChip(
           label: 'Test Audio',
           icon: Icons.volume_up_rounded,
-          color: Colors.white70,
+          color: StadiumStyle.of(context).body,
           onPressed: onTestAudio,
         ),
       ],
@@ -674,6 +674,7 @@ class _ActionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     final enabled = onPressed != null;
 
     return FilledButton.tonal(
@@ -686,8 +687,8 @@ class _ActionChip extends StatelessWidget {
       style: FilledButton.styleFrom(
         backgroundColor: enabled
             ? color.withValues(alpha: 0.15)
-            : Colors.white.withValues(alpha: 0.04),
-        foregroundColor: enabled ? color : Colors.white30,
+            : style.chipBackground,
+        foregroundColor: enabled ? color : style.muted.withValues(alpha: 0.5),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

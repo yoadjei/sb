@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/bt_device.dart';
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
 class DeviceCard extends StatelessWidget {
   const DeviceCard({
@@ -20,30 +21,36 @@ class DeviceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rssiLabel = device.rssi != null ? '${device.rssi} dBm' : '—';
+    final style = StadiumStyle.of(context);
+    final rssiLabel = device.rssi != null ? '${device.rssi} dBm' : 'n/a';
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isConnected
-              ? [
-                  StadiumColors.accent.withValues(alpha: 0.22),
-                  StadiumColors.navyMid,
-                ]
-              : [
-                  StadiumColors.navyMid.withValues(alpha: 0.95),
-                  StadiumColors.navy,
+        color: style.card,
+        gradient: isConnected
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  StadiumColors.accent.withValues(alpha: style.isDark ? 0.22 : 0.12),
+                  style.isDark ? StadiumColors.navyMid : style.card,
                 ],
-        ),
+              )
+            : style.isDark
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      StadiumColors.navyMid.withValues(alpha: 0.95),
+                      StadiumColors.navy,
+                    ],
+                  )
+                : null,
         border: Border.all(
-          color: isConnected
-              ? StadiumColors.accent
-              : Colors.white.withValues(alpha: 0.08),
+          color: isConnected ? StadiumColors.accent : style.cardBorder,
           width: isConnected ? 1.5 : 1,
         ),
         boxShadow: [
@@ -65,12 +72,12 @@ class DeviceCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isConnected
                     ? StadiumColors.accent.withValues(alpha: 0.18)
-                    : Colors.white.withValues(alpha: 0.06),
+                    : style.chipBackground,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 isConnected ? Icons.check_circle_rounded : Icons.bluetooth_rounded,
-                color: isConnected ? StadiumColors.accent : Colors.white70,
+                color: isConnected ? StadiumColors.accent : style.body,
                 size: 26,
               ),
             ),
@@ -84,7 +91,7 @@ class DeviceCard extends StatelessWidget {
                     style: GoogleFonts.spaceGrotesk(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: style.title,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -94,7 +101,7 @@ class DeviceCard extends StatelessWidget {
                     device.address,
                     style: GoogleFonts.robotoMono(
                       fontSize: 12,
-                      color: Colors.white60,
+                      color: style.muted,
                       letterSpacing: 0.4,
                     ),
                   ),
@@ -104,14 +111,14 @@ class DeviceCard extends StatelessWidget {
                       Icon(
                         Icons.signal_cellular_alt,
                         size: 14,
-                        color: _rssiColor(device.rssi),
+                        color: _rssiColor(device.rssi, style),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         rssiLabel,
                         style: GoogleFonts.spaceGrotesk(
                           fontSize: 12,
-                          color: Colors.white54,
+                          color: style.muted,
                         ),
                       ),
                     ],
@@ -162,8 +169,8 @@ class DeviceCard extends StatelessWidget {
     );
   }
 
-  Color _rssiColor(int? rssi) {
-    if (rssi == null) return Colors.white38;
+  Color _rssiColor(int? rssi, StadiumStyle style) {
+    if (rssi == null) return style.muted;
     if (rssi >= -60) return StadiumColors.accent;
     if (rssi >= -80) return Colors.amber;
     return StadiumColors.rival;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 import '../widgets/stadium_scaffold.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -11,11 +12,12 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
     return StadiumScaffold(
       appBar: AppBar(
         title: const StadiumAppBarTitle('About'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: style.title,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
@@ -57,7 +59,7 @@ class AboutScreen extends StatelessWidget {
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: style.title,
               ),
             ),
             const SizedBox(height: 8),
@@ -66,16 +68,16 @@ class AboutScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 14,
-                color: Colors.white54,
+                color: style.muted,
                 height: 1.4,
               ),
             ),
             const SizedBox(height: 32),
-            _InfoRow(label: 'Developed by', value: ''),
+            _InfoRow(label: 'Developed by', value: '', style: style),
             const SizedBox(height: 12),
-            _InfoRow(label: 'University', value: ''),
+            _InfoRow(label: 'University', value: '', style: style),
             const SizedBox(height: 12),
-            _InfoRow(label: 'Version', value: appVersion),
+            _InfoRow(label: 'Version', value: appVersion, style: style),
             const SizedBox(height: 32),
             Text(
               'Stadium Night Edition',
@@ -94,10 +96,11 @@ class AboutScreen extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
+  const _InfoRow({required this.label, required this.value, required this.style});
 
   final String label;
   final String value;
+  final StadiumStyle style;
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +109,8 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withValues(alpha: 0.04),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        color: style.card,
+        border: Border.all(color: style.cardBorder),
       ),
       child: Row(
         children: [
@@ -115,16 +118,16 @@ class _InfoRow extends StatelessWidget {
             label,
             style: GoogleFonts.spaceGrotesk(
               fontSize: 14,
-              color: Colors.white54,
+              color: style.muted,
             ),
           ),
           const Spacer(),
           Text(
-            value.isEmpty ? '—' : value,
+            value.isEmpty ? 'n/a' : value,
             style: GoogleFonts.spaceGrotesk(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: style.title,
             ),
           ),
         ],

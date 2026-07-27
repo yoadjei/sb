@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/colors.dart';
+import '../themes/stadium_style.dart';
 
 class HubTile extends StatelessWidget {
   const HubTile({
@@ -19,6 +20,8 @@ class HubTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = StadiumStyle.of(context);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -27,15 +30,18 @@ class HubTile extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                StadiumColors.navyMid.withValues(alpha: 0.9),
-                StadiumColors.navy.withValues(alpha: 0.95),
-              ],
-            ),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            color: style.card,
+            gradient: style.isDark
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      StadiumColors.navyMid.withValues(alpha: 0.9),
+                      StadiumColors.navy.withValues(alpha: 0.95),
+                    ],
+                  )
+                : null,
+            border: Border.all(color: style.cardBorder),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -60,7 +66,7 @@ class HubTile extends StatelessWidget {
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: style.title,
                     height: 1.2,
                   ),
                 ),
