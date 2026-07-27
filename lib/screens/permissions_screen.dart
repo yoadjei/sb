@@ -313,6 +313,16 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       ),
                     ),
                   ),
+                  TextButton(
+                    onPressed: isRequesting ? null : _continue,
+                    child: Text(
+                      'Continue without permissions',
+                      style: GoogleFonts.spaceGrotesk(
+                        color: style.muted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),

@@ -299,31 +299,34 @@ class _SwitchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = StadiumStyle.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
         color: style.card,
-        border: Border.all(color: style.cardBorder),
-      ),
-      child: SwitchListTile(
-        title: Text(
-          title,
-          style: GoogleFonts.spaceGrotesk(
-            fontWeight: FontWeight.w600,
-            color: style.title,
-          ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: style.cardBorder),
         ),
-        subtitle: Text(
-          subtitle,
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 12,
-            color: style.muted,
+        clipBehavior: Clip.antiAlias,
+        child: SwitchListTile(
+          title: Text(
+            title,
+            style: GoogleFonts.spaceGrotesk(
+              fontWeight: FontWeight.w600,
+              color: style.title,
+            ),
           ),
+          subtitle: Text(
+            subtitle,
+            style: GoogleFonts.spaceGrotesk(
+              fontSize: 12,
+              color: style.muted,
+            ),
+          ),
+          value: value,
+          activeThumbColor: StadiumColors.accent,
+          onChanged: onChanged,
         ),
-        value: value,
-        activeThumbColor: StadiumColors.accent,
-        onChanged: onChanged,
       ),
     );
   }
@@ -345,31 +348,34 @@ class _ActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = StadiumStyle.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
         color: style.card,
-        border: Border.all(color: style.cardBorder),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: StadiumColors.accent),
-        title: Text(
-          title,
-          style: GoogleFonts.spaceGrotesk(
-            fontWeight: FontWeight.w600,
-            color: style.title,
-          ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: style.cardBorder),
         ),
-        subtitle: Text(
-          subtitle,
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 12,
-            color: style.muted,
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          leading: Icon(icon, color: StadiumColors.accent),
+          title: Text(
+            title,
+            style: GoogleFonts.spaceGrotesk(
+              fontWeight: FontWeight.w600,
+              color: style.title,
+            ),
           ),
+          subtitle: Text(
+            subtitle,
+            style: GoogleFonts.spaceGrotesk(
+              fontSize: 12,
+              color: style.muted,
+            ),
+          ),
+          trailing: Icon(Icons.chevron_right, color: style.muted),
+          onTap: onTap,
         ),
-        trailing: Icon(Icons.chevron_right, color: style.muted),
-        onTap: onTap,
       ),
     );
   }
