@@ -9,6 +9,7 @@ class ConnectionStatus {
   final int? batteryPercent;
   final String? lastError;
   final List<BtDevice> discoveredDevices;
+  final bool connectionLost;
 
   const ConnectionStatus({
     required this.mode,
@@ -17,6 +18,7 @@ class ConnectionStatus {
     this.batteryPercent,
     this.lastError,
     this.discoveredDevices = const [],
+    this.connectionLost = false,
   });
 
   bool get isLive =>
@@ -29,6 +31,7 @@ class ConnectionStatus {
     int? batteryPercent,
     String? lastError,
     List<BtDevice>? discoveredDevices,
+    bool? connectionLost,
     bool clearError = false,
     bool clearDevices = false,
   }) {
@@ -40,6 +43,7 @@ class ConnectionStatus {
       lastError: clearError ? null : (lastError ?? this.lastError),
       discoveredDevices:
           clearDevices ? const [] : (discoveredDevices ?? this.discoveredDevices),
+      connectionLost: connectionLost ?? this.connectionLost,
     );
   }
 }

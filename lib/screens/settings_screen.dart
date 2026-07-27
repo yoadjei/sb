@@ -76,7 +76,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 );
               } else {
-                Navigator.of(context).pushReplacement(
+                Navigator.of(context).push(
                   FadePageRoute(page: const BluetoothScanScreen()),
                 );
               }

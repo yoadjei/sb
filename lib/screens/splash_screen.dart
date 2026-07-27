@@ -83,8 +83,14 @@ class _SplashScreenState extends State<SplashScreen>
           child: Stack(
             children: [
               Positioned.fill(
-                child: CustomPaint(
-                  painter: _StadiumAtmospherePainter(pulse: _pulseController),
+                child: AnimatedBuilder(
+                  animation: _pulseController,
+                  builder: (context, _) {
+                    return CustomPaint(
+                      painter:
+                          _StadiumAtmospherePainter(pulse: _pulseController),
+                    );
+                  },
                 ),
               ),
               Center(

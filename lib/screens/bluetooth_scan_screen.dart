@@ -96,14 +96,23 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
     }
   }
 
-  Future<void> _ensureBluetoothPermissions() async {
-    if (!_supportsClassicBluetooth) return;
-    await [
+  Future<bool> _ensureBluetoothPermissions() async {
+    if (!_supportsClassicBluetooth) return true;
+    final statuses = await [
       Permission.bluetoothScan,
       Permission.bluetoothConnect,
       Permission.bluetoothAdvertise,
       Permission.locationWhenInUse,
     ].request();
+    final granted = statuses.values.every(
+      (status) => status.isGranted || status.isLimited,
+    );
+    if (!granted && mounted) {
+      _showSnack(
+        'Bluetooth permissions are required to scan. Allow them in system settings.',
+      );
+    }
+    return granted;
   }
 
   Future<void> _refreshBluetoothState() async {
@@ -145,7 +154,8 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
 
     setState(() => _enablingBluetooth = true);
     try {
-      await _ensureBluetoothPermissions();
+      final permitted = await _ensureBluetoothPermissions();
+      if (!permitted) return;
       final enabled =
           await ref.read(connectionProvider.notifier).requestEnableBluetooth();
       if (!mounted) return;
@@ -184,6 +194,8 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
 
   Future<void> _startScan() async {
     if (_bluetoothOff) return;
+    final permitted = await _ensureBluetoothPermissions();
+    if (!permitted) return;
     await ref.read(connectionProvider.notifier).startScan();
     final error = ref.read(connectionProvider).lastError;
     if (error != null) {
@@ -221,8 +233,9 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
   Future<void> _goToDashboard() async {
     if (_navigating || !mounted) return;
     _navigating = true;
-    await Navigator.of(context).pushReplacement(
+    await Navigator.of(context).pushAndRemoveUntil(
       FadePageRoute(page: const DashboardScreen()),
+      (route) => false,
     );
   }
 
@@ -254,12 +267,6 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
       return 'Could not connect. Ensure the scoreboard is powered on and paired.';
     }
     return 'Connection failed. Tap Connect to retry.';
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 
   @override
@@ -317,7 +324,13 @@ class _BluetoothScanScreenState extends ConsumerState<BluetoothScanScreen>
                   ),
                 )
               else if (_bluetoothOff)
-                Expanded(child: _BluetoothOffState(onEnable: _enableBluetooth, style: style))
+                Expanded(
+                  child: _BluetoothOffState(
+                    onEnable: _enableBluetooth,
+                    enabling: _enablingBluetooth,
+                    style: style,
+                  ),
+                )
               else ...[
                 _SearchAnimation(
                   controller: _searchController,
@@ -570,9 +583,14 @@ class _EmptyScanState extends StatelessWidget {
 }
 
 class _BluetoothOffState extends StatelessWidget {
-  const _BluetoothOffState({required this.onEnable, required this.style});
+  const _BluetoothOffState({
+    required this.onEnable,
+    required this.enabling,
+    required this.style,
+  });
 
   final VoidCallback onEnable;
+  final bool enabling;
   final StadiumStyle style;
 
   @override
@@ -609,10 +627,16 @@ class _BluetoothOffState extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
-              onPressed: onEnable,
-              icon: const Icon(Icons.bluetooth_rounded),
+              onPressed: enabling ? null : onEnable,
+              icon: enabling
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.bluetooth_rounded),
               label: Text(
-                'Turn On Bluetooth',
+                enabling ? 'Opening prompt…' : 'Turn On Bluetooth',
                 style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700),
               ),
               style: FilledButton.styleFrom(

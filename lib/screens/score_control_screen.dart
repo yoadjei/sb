@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../providers/score_provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/timer_provider.dart';
 import '../themes/colors.dart';
 import '../themes/stadium_style.dart';
+import '../utils/formatters.dart';
 import '../widgets/live_scoreboard_card.dart';
 import '../widgets/score_control_panel.dart';
 import '../widgets/stadium_scaffold.dart';
@@ -22,6 +24,7 @@ class _ScoreControlScreenState extends ConsumerState<ScoreControlScreen> {
   Widget build(BuildContext context) {
     final score = ref.watch(scoreProvider);
     final settings = ref.watch(settingsProvider);
+    final timer = ref.watch(timerProvider);
 
     ref.listen(scoreProvider, (previous, next) {
       final error = next.lastError;
@@ -62,7 +65,7 @@ class _ScoreControlScreenState extends ConsumerState<ScoreControlScreen> {
                     LiveScoreboardCard(
                       teamA: score.teamA,
                       teamB: score.teamB,
-                      timerLabel: 'n/a',
+                      timerLabel: Formatters.formatDuration(timer.duration),
                       matchActive: score.matchActive,
                       animationsEnabled: settings.animationsEnabled,
                     ),

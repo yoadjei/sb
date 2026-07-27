@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -11,20 +13,23 @@ class ConnectionLostDialog extends StatelessWidget {
     required this.onUseSimulation,
   });
 
-  final VoidCallback onReconnect;
+  final FutureOr<void> Function() onReconnect;
   final VoidCallback onUseSimulation;
 
   static Future<void> show(
     BuildContext context, {
-    required VoidCallback onReconnect,
+    required FutureOr<void> Function() onReconnect,
     required VoidCallback onUseSimulation,
   }) {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => ConnectionLostDialog(
-        onReconnect: onReconnect,
-        onUseSimulation: onUseSimulation,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: ConnectionLostDialog(
+          onReconnect: onReconnect,
+          onUseSimulation: onUseSimulation,
+        ),
       ),
     );
   }
@@ -70,9 +75,9 @@ class ConnectionLostDialog extends StatelessWidget {
           ),
         ),
         FilledButton(
-          onPressed: () {
+          onPressed: () async {
             Navigator.of(context).pop();
-            onReconnect();
+            await onReconnect();
           },
           style: FilledButton.styleFrom(
             backgroundColor: StadiumColors.accent,

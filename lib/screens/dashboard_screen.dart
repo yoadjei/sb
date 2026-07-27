@@ -241,8 +241,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   void _listenForConnectionLoss() {
     ref.listen(connectionProvider, (previous, next) {
-      final notifier = ref.read(connectionProvider.notifier);
-      if (!notifier.connectionLost || _connectionDialogVisible) {
+      final justLost =
+          next.connectionLost && !(previous?.connectionLost ?? false);
+      if (!justLost || _connectionDialogVisible) {
         return;
       }
 
@@ -255,12 +256,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
         await ConnectionLostDialog.show(
           context,
-          onReconnect: () {
-            notifier.connectionLost = false;
-            ref.read(connectionProvider.notifier).reconnect();
+          onReconnect: () async {
+            await ref.read(connectionProvider.notifier).reconnect();
+            if (!mounted) return;
+            final status = ref.read(connectionProvider);
+            if (!status.isLive && status.lastError != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(status.lastError!),
+                  backgroundColor: StadiumColors.rival,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
           },
           onUseSimulation: () {
-            notifier.connectionLost = false;
             ref.read(connectionProvider.notifier).enterSimulation();
           },
         );

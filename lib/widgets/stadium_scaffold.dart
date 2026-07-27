@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../themes/stadium_style.dart';
-import '../utils/app_brand.dart';
 import 'arena_board_logo.dart';
 
 /// Gradient-backed scaffold that follows light / dark theme.

@@ -189,8 +189,13 @@ class BluetoothService {
             BluetoothException('Connection read error: $error'),
           );
         }
+        unawaited(disconnect());
       },
       onDone: () {
+        // Notify listeners so connection-lost UI can react.
+        if (!_lineController.isClosed) {
+          _lineController.addError(BluetoothException('Connection closed'));
+        }
         unawaited(disconnect());
       },
       cancelOnError: false,

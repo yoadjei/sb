@@ -2,6 +2,7 @@ import 'package:digital_sports_scoreboard/app.dart';
 import 'package:digital_sports_scoreboard/models/app_settings.dart';
 import 'package:digital_sports_scoreboard/providers/settings_provider.dart';
 import 'package:digital_sports_scoreboard/themes/stadium_style.dart';
+import 'package:digital_sports_scoreboard/widgets/stadium_scaffold.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,7 +78,7 @@ void main() {
     await advanceSplash(tester);
     await enterSimulation(tester);
 
-    expect(find.text('ArenaBoard'), findsWidgets);
+    expect(find.byType(DssLogoMark), findsOneWidget);
     expect(find.text('Start Match'), findsOneWidget);
     expect(find.text('Score'), findsOneWidget);
     expect(find.text('Music'), findsOneWidget);

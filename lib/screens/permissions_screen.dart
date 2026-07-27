@@ -14,8 +14,8 @@ enum _PermissionPhase { idle, requesting, granted, denied, permanentlyDenied }
 /// On web/desktop we skip grants and send users to Simulation Mode.
 bool get _needsBluetoothPermissions {
   if (kIsWeb) return false;
-  return defaultTargetPlatform == TargetPlatform.android ||
-      defaultTargetPlatform == TargetPlatform.iOS;
+  // Classic SPP is Android-only with this stack.
+  return defaultTargetPlatform == TargetPlatform.android;
 }
 
 class PermissionsScreen extends StatefulWidget {

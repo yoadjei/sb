@@ -58,8 +58,7 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   BtDevice? _lastDevice;
   bool _useSimulation = false;
   bool _wasConnected = false;
-
-  bool connectionLost = false;
+  bool _scanInFlight = false;
 
   ScoreboardConnection get connection {
     final instances = ref.read(_connectionInstancesProvider);
@@ -73,10 +72,12 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   }
 
   Future<void> startScan() async {
-    connectionLost = false;
+    if (_scanInFlight) return;
+    _scanInFlight = true;
     _useSimulation = false;
     state = state.copyWith(
       mode: ConnectionMode.scanning,
+      connectionLost: false,
       clearError: true,
       clearDevices: true,
     );
@@ -94,6 +95,8 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
         mode: ConnectionMode.disconnected,
         lastError: error.toString(),
       );
+    } finally {
+      _scanInFlight = false;
     }
   }
 
@@ -123,11 +126,11 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   Future<void> connectDevice(BtDevice device) async {
     _useSimulation = false;
     _lastDevice = device;
-    connectionLost = false;
     state = state.copyWith(
       mode: ConnectionMode.connecting,
       deviceName: device.name,
       deviceAddress: device.address,
+      connectionLost: false,
       clearError: true,
     );
 
@@ -147,9 +150,9 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   Future<void> enterSimulation() async {
     _useSimulation = true;
     _lastDevice = null;
-    connectionLost = false;
     state = state.copyWith(
       mode: ConnectionMode.connecting,
+      connectionLost: false,
       clearError: true,
     );
 
@@ -171,7 +174,6 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   }
 
   Future<void> disconnect() async {
-    connectionLost = false;
     _wasConnected = false;
     await _cancelSubscriptions();
     try {
@@ -183,7 +185,6 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
   }
 
   Future<void> reconnect() async {
-    connectionLost = false;
     if (_useSimulation) {
       await enterSimulation();
       return;
@@ -209,10 +210,10 @@ class ConnectionNotifier extends Notifier<ConnectionStatus> {
 
     _connectionSub = connection.connectionChanges.listen((connected) {
       if (!connected && _wasConnected) {
-        connectionLost = true;
         _wasConnected = false;
         state = state.copyWith(
           mode: ConnectionMode.disconnected,
+          connectionLost: true,
           lastError: 'Connection lost',
         );
       }
