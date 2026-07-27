@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../themes/colors.dart';
 import '../themes/stadium_style.dart';
 import '../utils/app_brand.dart';
 import '../widgets/arena_board_logo.dart';
@@ -55,16 +54,6 @@ class AboutScreen extends StatelessWidget {
               label: 'Version',
               value: AppBrand.version,
               style: style,
-            ),
-            const SizedBox(height: 32),
-            Text(
-              'Stadium Night Edition',
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                color: StadiumColors.brand.withValues(alpha: 0.85),
-              ),
             ),
           ],
         ),
