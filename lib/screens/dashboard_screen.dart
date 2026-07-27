@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../animations/fade_page_route.dart';
 import '../models/connection_status.dart';
 import '../providers/connection_provider.dart';
+import '../providers/history_provider.dart';
 import '../providers/music_provider.dart';
 import '../providers/score_provider.dart';
 import '../providers/settings_provider.dart';
@@ -107,7 +108,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             _QuickActionsRow(
               matchActive: score.matchActive,
               onStart: () => ref.read(scoreProvider.notifier).startMatch(),
-              onEnd: () => ref.read(scoreProvider.notifier).endMatch(),
+              onEnd: () {
+                ref.read(scoreProvider.notifier).endMatch().then((_) {
+                  ref.read(historyProvider.notifier).refresh();
+                });
+              },
               onReset: () => _confirmReset(context),
               onTestAudio: () => _sendTestAudio(context),
             ),
