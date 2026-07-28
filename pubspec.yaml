@@ -20,6 +20,13 @@ dependencies:
   intl: ^0.19.0
   uuid: ^4.5.1
 
+# flutter_bluetooth_serial 0.4.0 on pub.dev still uses jcenter() and declares no
+# Android namespace, so it cannot be built with Gradle 9 / AGP 8+. third_party
+# holds the same package with only those Gradle settings corrected.
+dependency_overrides:
+  flutter_bluetooth_serial:
+    path: third_party/flutter_bluetooth_serial
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

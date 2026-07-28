@@ -1,0 +1,31 @@
+group 'io.github.edufolly.flutterbluetoothserial'
+version '1.0-SNAPSHOT'
+
+// Vendored copy of flutter_bluetooth_serial 0.4.0 (pub.dev, unmaintained since 2021).
+// Only the Gradle config below differs from the published package: the original
+// declared jcenter() repositories (removed in Gradle 9) and no namespace
+// (required since AGP 8). Java sources and Dart sources are untouched.
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'io.github.edufolly.flutterbluetoothserial'
+    compileSdk 36
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    defaultConfig {
+        minSdk 24
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    lint {
+        disable 'InvalidPackage'
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+}
